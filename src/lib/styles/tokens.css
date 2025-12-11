@@ -1,0 +1,128 @@
+:root {
+	color-scheme: light;
+
+	/* Spacing based on golden ratio */
+	--space-xxs: 0.236rem;
+	--space-xs: 0.382rem;
+	--space-sm: 0.618rem;
+	--space-md: 1rem;
+	--space-lg: 1.618rem;
+	--space-xl: 2.618rem;
+
+	/* Corner radius */
+	--corner-radius: 1.25rem;
+	--corner-radius-full: 9999px;
+
+	/* Special paddings & gaps */
+	--padding-y-icon: 0.485rem;
+	--gap-icon: 0.44rem;
+
+	/* System colors */
+	--color-success: light-dark(#36cb40, #1f7a25);
+	--color-warning: light-dark(#fabf38, #c78c05);
+	--color-error: light-dark(#ff6057, #c73830);
+
+	/* Palette generator, inspired from Radix Colors */
+	--l: 48.87%;
+	--c: 0.1923;
+	--h: 282.69;
+
+	/* Light component of LCH */
+	--ll1: 99.4%;
+	--ll2: 98.3%;
+	--ll3: 96.1%;
+	--ll4: 93.5%;
+	--ll5: 90.3%;
+	--ll6: 86.3%;
+	--ll7: 80.7%;
+	--ll8: 73%;
+	--ll11: 51%;
+	--ll12: 31.3%;
+
+	--ld1: 17.8%;
+	--ld2: 20.5%;
+	--ld3: 25.2%;
+	--ld4: 29%;
+	--ld5: 33.1%;
+	--ld6: 38.1%;
+	--ld7: 44.9%;
+	--ld8: 54%;
+	--ld11: 78.4%;
+	--ld12: 90%;
+
+	/* Chroma component of LCH */
+	--max-c: 0.25;
+	--c-factor: min(1, calc(var(--c) / var(--max-c)));
+	--c1: calc(0.013 * var(--c-factor));
+	--c2: calc(0.026 * var(--c-factor));
+	--c3: calc(0.09 * var(--c-factor));
+	--c4: calc(0.144 * var(--c-factor));
+	--c5: calc(0.16 * var(--c-factor));
+	--c6: calc(0.17 * var(--c-factor));
+	--c7: calc(0.18 * var(--c-factor));
+	--c8: calc(0.22 * var(--c-factor));
+	--c11: calc(0.25 * var(--c-factor));
+	--c12: calc(0.09 * var(--c-factor));
+
+	/* Hover constants */
+	--lightness-delta: -5%;
+	--chroma-delta: 0.02;
+
+	/* Foreground constants */
+	--lightness-treshold: 75%;
+
+	/* https://www.radix-ui.com/colors/docs/palette-composition/understanding-the-scale */
+	--color-background: light-dark(
+		oklch(var(--ll1) var(--c1) var(--h)),
+		oklch(var(--ld1) var(--c1) var(--h))
+	);
+	--color-subtle-background: light-dark(
+		oklch(var(--ll2) var(--c2) var(--h)),
+		oklch(var(--ld2) var(--c2) var(--h))
+	);
+	--color-normal: light-dark(
+		oklch(var(--ll3) var(--c3) var(--h)),
+		oklch(var(--ld3) var(--c3) var(--h))
+	);
+	--color-hover: light-dark(
+		oklch(var(--ll4) var(--c4) var(--h)),
+		oklch(var(--ld4) var(--c4) var(--h))
+	);
+	--color-selected: light-dark(
+		oklch(var(--ll5) var(--c5) var(--h)),
+		oklch(var(--ld5) var(--c5) var(--h))
+	);
+	--color-disabled: light-dark(
+		oklch(var(--ll6) var(--c6) var(--h)),
+		oklch(var(--ld6) var(--c6) var(--h))
+	);
+	--color-border: light-dark(
+		oklch(var(--ll7) var(--c7) var(--h)),
+		oklch(var(--ld7) var(--c7) var(--h))
+	);
+	--color-focus-border: light-dark(
+		oklch(var(--ll8) var(--c8) var(--h)),
+		oklch(var(--ld8) var(--c8) var(--h))
+	);
+	--color-solid-background: light-dark(
+		oklch(var(--l) var(--c) var(--h)),
+		oklch(var(--l) var(--c) var(--h))
+	);
+	--color-solid-hover-background: light-dark(
+		oklch(calc(var(--l) + var(--lightness-delta)) calc(var(--c) + var(--chroma-delta)) var(--h)),
+		oklch(calc(var(--l) + var(--lightness-delta)) calc(var(--c) + var(--chroma-delta)) var(--h))
+	);
+	--color-low-contrast: light-dark(
+		oklch(var(--ll11) var(--c11) var(--h)),
+		oklch(var(--ld11) var(--c11) var(--h))
+	);
+	--color-high-contrast: light-dark(
+		oklch(var(--ll12) var(--c12) var(--h)),
+		oklch(var(--ld12) var(--c12) var(--h))
+	);
+	--color-solid-foreground: color-mix(
+		in oklch,
+		var(--color-high-contrast) calc((var(--l) - var(--lightness-treshold)) * 1000),
+		var(--color-background) calc((var(--lightness-treshold) - var(--l)) * 1000)
+	);
+}
