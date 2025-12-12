@@ -37,12 +37,7 @@ export const GET: RequestHandler = async ({ url, cookies }) => {
 			}
 		});
 
-		console.log(userInfo.status, userInfo.statusText);
-
-		console.log('Raw user info:', userInfo);
-
 		const userJson = await userInfo.json();
-		console.log('User info JSON:', userJson);
 		const user = ChurrosProfile.in(userJson);
 
 		if (user instanceof ArkErrors) {
