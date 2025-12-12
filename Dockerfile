@@ -17,6 +17,7 @@ ENV CLIENT_ID=invalid
 ENV CLIENT_SECRET=invalid
 ENV REDIRECT_URL=http://localhost:3000/auth/callback
 ENV LOGOUT_URL=https://auth.inpt.fr/application/o/b00chat/end-session/
+ENV USER_INFO_URL=https://auth.inpt.fr/application/o/user-info/
 RUN pnpm run build
 
 FROM base
