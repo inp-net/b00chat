@@ -20,6 +20,12 @@ ENV LOGOUT_URL=https://auth.inpt.fr/application/o/b00chat/end-session/
 RUN pnpm run build
 
 FROM base
+
+ARG VERSION=dev
+ENV VERSION=$VERSION
+ARG COMMIT=none
+ENV BUILD_COMMIT=$COMMIT
+
 COPY --from=prod-deps /app/node_modules /app/node_modules
 COPY --from=build /app/build /app/build
 EXPOSE 3000

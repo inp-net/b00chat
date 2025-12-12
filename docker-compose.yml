@@ -1,6 +1,10 @@
 services:
   b00chat:
-    build: .
+    build:
+      context: .
+      args:
+        VERSION: dev-from-docker-compose
+        COMMIT: none-from-docker-compose
     env_file:
       - .env
     ports:

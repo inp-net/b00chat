@@ -18,5 +18,7 @@ export const env = arkenv({
 	// TODO
 	// MAX_MESSAGES_COUNT: 'number >= 10',
 	MODERATION_DELAY_MS: 'string.integer.parse = "1000"',
-	SESSION_EXPIRATION_HOURS: 'string.integer.parse = "4"'
+	SESSION_EXPIRATION_HOURS: 'string.integer.parse = "4"',
+	VERSION: 'string = "dev"',
+	BUILD_COMMIT: 'string = "none"'
 });
