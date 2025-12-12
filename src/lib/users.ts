@@ -2,7 +2,7 @@
 
 import { type } from 'arktype';
 
-const MajorSchema = type.enumerated('sdn', '3ea', 'mfee');
+export const MajorSchema = type.enumerated('sdn', 'eeea', 'mfee');
 
 export const UID = type('string.alphanumeric > 0');
 
