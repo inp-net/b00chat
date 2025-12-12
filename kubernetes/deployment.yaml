@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: b00chat-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: b00chat-app
+  template:
+    metadata:
+      labels:
+        app: b00chat-app
+    spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 1
+              podAffinityTerm:
+                topologyKey: 'kubernetes.io/hostname'
+                labelSelector:
+                  matchLabels:
+                    app: b00chat-app
+      containers:
+        - image: registry.inpt.fr/net7/b00chat:latest
+          imagePullPolicy: IfNotPresent
+          name: app
+          ports:
+            - containerPort: 3000
+          resources:
+            requests:
+              memory: '128Mi'
+              cpu: '250m'
+            limits:
+              memory: '512Mi'
+              cpu: '500m'
+          readinessProbe:
+            httpGet:
+              path: /backrooms/version
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            failureThreshold: 3
+          envFrom:
+            - configMapRef:
+                name: b00chat-config

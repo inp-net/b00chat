@@ -36,9 +36,6 @@ importers:
       '@eslint/js':
         specifier: ^9.39.1
         version: 9.39.1
-      '@sveltejs/adapter-auto':
-        specifier: ^7.0.0
-        version: 7.0.0(@sveltejs/kit@https://pkg.pr.new/sveltejs/kit/@sveltejs/kit@1998d7b6de1c8e3e67a52d9f387a64d3683f5045(@sveltejs/vite-plugin-svelte@6.2.1(svelte@5.45.9)(vite@7.2.7(@types/node@24.10.3)))(svelte@5.45.9)(vite@7.2.7(@types/node@24.10.3)))
       '@sveltejs/adapter-node':
         specifier: https://pkg.pr.new/sveltejs/kit/@sveltejs/adapter-node@1998d7b6de1c8e3e67a52d9f387a64d3683f5045
         version: https://pkg.pr.new/sveltejs/kit/@sveltejs/adapter-node@1998d7b6de1c8e3e67a52d9f387a64d3683f5045(@sveltejs/kit@https://pkg.pr.new/sveltejs/kit/@sveltejs/kit@1998d7b6de1c8e3e67a52d9f387a64d3683f5045(@sveltejs/vite-plugin-svelte@6.2.1(svelte@5.45.9)(vite@7.2.7(@types/node@24.10.3)))(svelte@5.45.9)(vite@7.2.7(@types/node@24.10.3)))
@@ -504,12 +501,6 @@ packages:
     resolution: {integrity: sha512-esgN+54+q0NjB0Y/4BomT9samII7jGwNy/2a3wNZbT2A2RpmXsXwUt24LvLhx6jUq2gVk4cWEvcRO6MFQbOfNA==}
     peerDependencies:
       acorn: ^8.9.0
-
-  '@sveltejs/adapter-auto@7.0.0':
-    resolution: {integrity: sha512-ImDWaErTOCkRS4Gt+5gZuymKFBobnhChXUZ9lhUZLahUgvA4OOvRzi3sahzYgbxGj5nkA6OV0GAW378+dl/gyw==}
-    version: 7.0.0
-    peerDependencies:
-      '@sveltejs/kit': ^2.0.0
 
   '@sveltejs/adapter-node@https://pkg.pr.new/sveltejs/kit/@sveltejs/adapter-node@1998d7b6de1c8e3e67a52d9f387a64d3683f5045':
     resolution: {tarball: https://pkg.pr.new/sveltejs/kit/@sveltejs/adapter-node@1998d7b6de1c8e3e67a52d9f387a64d3683f5045}
@@ -1564,10 +1555,6 @@ snapshots:
   '@sveltejs/acorn-typescript@1.0.8(acorn@8.15.0)':
     dependencies:
       acorn: 8.15.0
-
-  '@sveltejs/adapter-auto@7.0.0(@sveltejs/kit@https://pkg.pr.new/sveltejs/kit/@sveltejs/kit@1998d7b6de1c8e3e67a52d9f387a64d3683f5045(@sveltejs/vite-plugin-svelte@6.2.1(svelte@5.45.9)(vite@7.2.7(@types/node@24.10.3)))(svelte@5.45.9)(vite@7.2.7(@types/node@24.10.3)))':
-    dependencies:
-      '@sveltejs/kit': https://pkg.pr.new/sveltejs/kit/@sveltejs/kit@1998d7b6de1c8e3e67a52d9f387a64d3683f5045(@sveltejs/vite-plugin-svelte@6.2.1(svelte@5.45.9)(vite@7.2.7(@types/node@24.10.3)))(svelte@5.45.9)(vite@7.2.7(@types/node@24.10.3))
 
   '@sveltejs/adapter-node@https://pkg.pr.new/sveltejs/kit/@sveltejs/adapter-node@1998d7b6de1c8e3e67a52d9f387a64d3683f5045(@sveltejs/kit@https://pkg.pr.new/sveltejs/kit/@sveltejs/kit@1998d7b6de1c8e3e67a52d9f387a64d3683f5045(@sveltejs/vite-plugin-svelte@6.2.1(svelte@5.45.9)(vite@7.2.7(@types/node@24.10.3)))(svelte@5.45.9)(vite@7.2.7(@types/node@24.10.3)))':
     dependencies:
