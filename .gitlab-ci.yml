@@ -37,6 +37,7 @@
 
 deploy:
   extends: .builder
+  stage: deploy
   rules:
     - if: $CI_COMMIT_TAG =~ /^v\d+\.\d+\.\d+$/
   script:
@@ -44,5 +45,6 @@ deploy:
 
 build:
   extends: .builder
+  stage: build
   script:
     - dockerbuild "dev-$CI_COMMIT_SHA" false
