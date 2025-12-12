@@ -51,5 +51,7 @@ build:
   image: node:24-slim
   script:
     - corepack enable
+    # env vars (with dummy values) required to build...
+    - cp .env.example .env
     - pnpm i
     - pnpm run build
