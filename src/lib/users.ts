@@ -9,7 +9,7 @@ export const UID = type('string.alphanumeric > 0');
 export const ChurrosProfile = type({
 	pronouns: 'string',
 	uid: UID,
-	pictureURL: 'string.url | null',
+	pictureURL: 'string.url | ""',
 	churrosNickname: 'string',
 	firstName: 'string > 0',
 	lastName: 'string > 0',
