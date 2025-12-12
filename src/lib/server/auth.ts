@@ -1,7 +1,7 @@
 import { Authentik } from 'arctic/dist/providers/authentik';
 import { env } from './env';
 import { isFuture } from 'date-fns';
-import { DB, Tables, type Session } from './database';
+import { DB, Tables, type Session, type User } from './database';
 import type { ChurrosProfile } from '$lib/users';
 
 export const OAUTH_STATE_COOKIE = 'oauthState';
@@ -14,16 +14,17 @@ export const authentik = new Authentik(
 	env.REDIRECT_URL
 );
 
-export function validateSession(id: string) {
+export function validateSession(id: string): User | undefined {
 	const session = DB.Session[id];
-	if (!session) return false;
+	if (!session) return undefined;
 
 	const valid = isFuture(session.validUntil);
 	if (!valid) {
 		logout(id);
+		return undefined;
 	}
 
-	return valid;
+	return DB.User[session.user];
 }
 
 export function createSession(user: typeof ChurrosProfile.inferIn): Session {
