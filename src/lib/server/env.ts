@@ -9,8 +9,12 @@ export const env = arkenv({
 	CLIENT_SECRET: 'string.alphanumeric',
 	REDIRECT_URL: 'string.url',
 	LOGOUT_URL: 'string.url',
-	BANNED_UIDS: [/^[\w\d,]+$/, '=>', (uids) => uids.split(',')],
-	ADMIN_UIDS: [/^[\w\d,]+$/, '=>', (uids) => uids.split(',')],
+	BANNED_UIDS: type(/^[\w\d,]*$/)
+		.pipe((uids) => uids.split(','))
+		.default(''),
+	ADMIN_UIDS: type(/^[\w\d,]*$/)
+		.pipe((uids) => uids.split(','))
+		.default(''),
 	// TODO
 	// MAX_MESSAGES_COUNT: 'number >= 10',
 	MODERATION_DELAY_MS: 'string.integer.parse = "1000"',
