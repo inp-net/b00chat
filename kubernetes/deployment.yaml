@@ -22,7 +22,7 @@ spec:
                   matchLabels:
                     app: b00chat-app
       containers:
-        - image: registry.inpt.fr/net7/b00chat:v0.0.2
+        - image: registry.inpt.fr/net7/b00chat:v0.0.3
           imagePullPolicy: IfNotPresent
           name: app
           ports:
