@@ -1,33 +1,25 @@
 <script lang="ts">
+	import Sender from './Sender.svelte';
+
 	type MessageProps = {
 		content: string;
 		senderName: string;
 		senderColor?: string;
+		senderPronouns?: string;
 	};
 
-	const maxSenderNameLength = 25;
-
-	let { content, senderName, senderColor }: MessageProps = $props();
+	let { content, ...sender }: MessageProps = $props();
 </script>
 
 <div class="message">
-	<span class="sender-name" style="color: {senderColor}"
-		>{senderName.slice(0, maxSenderNameLength)}</span
-	>
-	<div class="content">{content}</div>
+	<Sender {...sender} />
+	<span class="content">{content}</span>
 </div>
 
 <style>
 	.message {
-		display: flex;
-		align-items: flex-start;
 		margin-bottom: var(--space-md);
 		gap: var(--space-sm);
-	}
-
-	.sender-name {
-		font-weight: bold;
-		color: var(--color-high-contrast);
 	}
 
 	.content {

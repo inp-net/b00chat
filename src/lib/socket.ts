@@ -5,6 +5,7 @@ export const SocketMessageClientSchema = type({
 	content: 'string',
 	senderName: 'string',
 	senderUid: 'string',
+	senderPronouns: 'string',
 	timestamp: 'number.integer',
 	major: MajorSchema
 });

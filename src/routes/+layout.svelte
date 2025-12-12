@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { page } from '$app/state';
 	import favicon from '$lib/assets/favicon.svg';
 	import Button from '$lib/components/Button.svelte';
 	import { LogOutIcon } from '@lucide/svelte';
@@ -6,6 +7,7 @@
 	let { children, data } = $props();
 
 	const connected = $derived(Boolean(data.user));
+	const isOverlay = $derived(page.url.searchParams.has('overlay'));
 </script>
 
 <svelte:head>
@@ -13,14 +15,16 @@
 </svelte:head>
 
 <div class="content">
-	<nav>
-		<h1>B00chat</h1>
-		{#if connected}
-			<Button href="/logout" variant="ghost" class="logout-button">
-				<LogOutIcon size={24} />
-			</Button>
-		{/if}
-	</nav>
+	{#if !isOverlay}
+		<nav>
+			<h1>B00chat</h1>
+			{#if connected}
+				<Button href="/logout" variant="ghost" class="logout-button">
+					<LogOutIcon size={24} />
+				</Button>
+			{/if}
+		</nav>
+	{/if}
 
 	{@render children()}
 </div>

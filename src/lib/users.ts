@@ -7,19 +7,19 @@ export const MajorSchema = type.enumerated('sdn', 'eeea', 'mfee');
 export const UID = type('string.alphanumeric > 0');
 
 export const ChurrosProfile = type({
+	pronouns: 'string',
 	uid: UID,
 	pictureURL: 'string.url | null',
-	nickname: 'string',
+	churrosNickname: 'string',
 	firstName: 'string > 0',
 	lastName: 'string > 0',
-	major: {
-		uid: MajorSchema
-	}
-}).pipe(({ uid, nickname, major, pictureURL }) => ({
+	major: { uid: MajorSchema }
+}).pipe(({ uid, churrosNickname, major, pictureURL, pronouns }) => ({
 	uid,
-	name: nickname || uid,
+	name: churrosNickname || uid,
 	major: major.uid,
-	pictureURL
+	pictureURL,
+	pronouns
 }));
 
 export type Major = typeof MajorSchema.infer;

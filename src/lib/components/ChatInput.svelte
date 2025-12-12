@@ -1,15 +1,36 @@
 <script lang="ts">
 	import type { HTMLInputAttributes } from 'svelte/elements';
+	import type { SenderProps } from './Sender.svelte';
+	import Sender from './Sender.svelte';
 
-	type InputProps = HTMLInputAttributes;
+	type InputProps = HTMLInputAttributes & {
+		sender: SenderProps;
+	};
 
-	let { ...rest }: InputProps = $props();
+	let { sender, ...rest }: InputProps = $props();
 </script>
 
-<input class="chat-input" {...rest} />
+<div class="chat-input">
+	<div class="sender">
+		<Sender {...sender} />
+	</div>
+	<input {...rest} />
+</div>
 
 <style>
 	.chat-input {
+		display: flex;
+		gap: var(--space-md);
+		align-items: center;
+		width: 100%;
+	}
+
+	.sender {
+		display: flex;
+		gap: var(--space-xs);
+	}
+
+	input {
 		background-color: var(--color-normal);
 		font: inherit;
 		border-radius: var(--corner-radius);
@@ -24,7 +45,7 @@
 		width: 100%;
 	}
 
-	.chat-input:focus {
+	input:focus {
 		outline: none;
 		border-color: var(--color-accent);
 		box-shadow: 0 0 0 2px var(--color-accent-light);

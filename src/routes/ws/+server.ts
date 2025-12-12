@@ -1,19 +1,16 @@
-import { insertMessage, latestMessages, type Message } from '$lib/server/database';
+import { insertMessage, latestMessages, type User } from '$lib/server/database';
 import type { SocketMessage, SocketMessageClient } from '$lib/socket';
 import type { Peer, Socket } from '@sveltejs/kit';
 
-const socketSessions = new Map<string, Peer | null>();
+type SocketPeer = { user: User | null; peer: Peer | null };
+
+const socketSessions = new Map<string, SocketPeer>();
 
 // TODO add message types for mini games
 
 export const socket: Socket = {
 	upgrade(event) {
 		const socketId = event.request.headers.get('sec-websocket-key');
-
-		// TODO: uncomment when auth works
-		if (!event.locals.user) {
-			return { status: 401, body: 'Unauthorized' };
-		}
 
 		if (!socketId) {
 			return { status: 400, body: 'Bad Request' };
@@ -23,18 +20,20 @@ export const socket: Socket = {
 			return { status: 409, body: 'WebSocket already connected' };
 		}
 
-		socketSessions.set(socketId, null);
+		socketSessions.set(socketId, { user: event.locals.user ?? null, peer: null });
 	},
 	open(peer) {
 		const socketId = peer.request.headers.get('sec-websocket-key');
 		if (!socketId) return;
 
-		socketSessions.set(socketId, peer);
+		const socketPeer = socketSessions.get(socketId);
+		socketSessions.set(socketId, { user: socketPeer?.user ?? null, peer });
 
 		const previousMessages = latestMessages(10);
 		const socketPreviousMessage: SocketMessageClient[] = previousMessages.map((msg) => ({
 			content: msg.content,
 			senderName: msg.sender.name,
+			senderPronouns: msg.sender.pronouns,
 			senderUid: msg.sender.uid,
 			timestamp: msg.sentAt.getTime(),
 			major: msg.sender.major
@@ -63,8 +62,8 @@ export const socket: Socket = {
 			case 'message': {
 				// Broadcast the message to all connected peers
 				for (const [id, p] of socketSessions) {
-					if (p && id !== socketId) {
-						p.send(JSON.stringify(parsed));
+					if (p.peer && id !== socketId) {
+						p.peer.send(JSON.stringify(parsed));
 					}
 				}
 
