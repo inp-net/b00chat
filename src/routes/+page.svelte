@@ -94,8 +94,8 @@
 		{/each}
 	</div>
 	<div class="footer">
-		{#if loggedIn}
-			<div class="chat-input-container">
+		<div class="chat-input-container">
+			{#if loggedIn}
 				<ChatInput
 					id="chat-input"
 					onkeypress={(e) => {
@@ -120,10 +120,10 @@
 				>
 					<SendIcon />
 				</Button>
-			</div>
-		{:else}
-			<Button>Se connecter</Button>
-		{/if}
+			{:else}
+				<Button>Se connecter</Button>
+			{/if}
+		</div>
 	</div>
 </div>
 
