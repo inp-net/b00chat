@@ -2,16 +2,22 @@
 	import Button from '$lib/components/Button.svelte';
 	import ChatInput from '$lib/components/ChatInput.svelte';
 	import Message from '$lib/components/Message.svelte';
-	import type { SocketMessage } from '$lib/socket';
+	import { SocketMessageSchema, type SocketMessage } from '$lib/socket';
 	import { SendIcon } from '@lucide/svelte';
+	import { ArkErrors } from 'arktype';
 	import { onMount } from 'svelte';
 
-	const connected = true;
-	const messages: {
+	const { data } = $props();
+
+	const loggedIn = $derived(Boolean(data.user));
+
+	type Message = {
 		content: string;
 		senderName: string;
 		senderColor?: string;
-	}[] = $state([]);
+	};
+
+	const messages: Message[] = $state([]);
 
 	let ws: WebSocket | null = $state(null);
 	onMount(() => {
@@ -24,7 +30,12 @@
 			console.error('WebSocket error:', error);
 		};
 		ws.onmessage = (event) => {
-			const message = JSON.parse(event.data) as SocketMessage;
+			const message = SocketMessageSchema(JSON.parse(event.data));
+
+			if (message instanceof ArkErrors) {
+				console.error('Invalid message received:', message.summary);
+				return;
+			}
 
 			switch (message.type) {
 				case 'message':
@@ -84,7 +95,7 @@
 		{/each}
 	</div>
 	<div class="footer">
-		{#if connected}
+		{#if loggedIn}
 			<div class="chat-input-container">
 				<ChatInput
 					id="chat-input"
