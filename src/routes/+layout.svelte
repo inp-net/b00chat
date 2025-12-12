@@ -6,7 +6,7 @@
 	let { children } = $props();
 
 	// TODO: replace with real auth state
-	const connected = true;
+	const connected = false;
 </script>
 
 <svelte:head>
@@ -20,6 +20,8 @@
 			<Button href="/logout" variant="ghost" class="logout-button">
 				<LogOutIcon size={24} />
 			</Button>
+		{:else}
+			<Button href="/login" variant="default">Connexion</Button>
 		{/if}
 	</nav>
 

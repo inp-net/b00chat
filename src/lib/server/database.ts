@@ -1,8 +1,11 @@
 import { ChurrosProfile, UID } from '$lib/users';
 import { type } from 'arktype';
-import { compareDesc } from 'date-fns';
+import { addHours, compareDesc } from 'date-fns';
 import { env } from './env';
 import { ulid } from 'ulid';
+
+const ID = type('string').default(() => ulid());
+const Now = type('Date').default(() => new Date());
 
 export const Tables = {
 	User: ChurrosProfile.and({
@@ -13,17 +16,32 @@ export const Tables = {
 		moderator: env.ADMIN_UIDS.includes(user.uid) || 'moderatorBy' in user,
 		banned: env.BANNED_UIDS.includes(user.uid) || 'bannedBy' in user
 	})),
+
 	Message: type({
-		id: ['string', '=', () => ulid()],
+		id: ID,
 		sentAt: 'Date',
+		receivedAt: Now,
 		sender: UID,
 		content: 'string.trim',
 		'censoredBy?': UID
 	}).pipe((message) => ({
 		...message,
 		censored: Boolean(message.censoredBy)
+	})),
+
+	Session: type({
+		id: ID,
+		createdAt: Now,
+		user: UID
+	}).pipe((session) => ({
+		...session,
+		validUntil: addHours(session.createdAt, env.SESSION_EXPIRATION_HOURS)
 	}))
 };
+
+export type User = typeof Tables.User.inferOut;
+export type Message = typeof Tables.Message.inferOut;
+export type Session = typeof Tables.Session.inferOut;
 
 type Database = {
 	[K in keyof typeof Tables]: Record<string, (typeof Tables)[K]['infer']>;
@@ -31,14 +49,11 @@ type Database = {
 
 export const DB: Database = {
 	User: {},
-	Message: {}
+	Message: {},
+	Session: {}
 };
 
-export function setUser(user: typeof Tables.User.inferIn) {
-	DB.User[user.uid] = Tables.User.assert(user);
-}
-
-export function insertMessage(message: typeof Tables.Message.inferIn) {
+export function insertMessage(message: Message) {
 	const msg = Tables.Message.assert(message);
 	DB.Message[msg.id] = msg;
 }

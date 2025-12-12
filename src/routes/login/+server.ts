@@ -1,10 +1,8 @@
-import { authentik } from '$lib/server/auth';
+import { authentik, OAUTH_CODE_VERIFIER_COOKIE, OAUTH_STATE_COOKIE } from '$lib/server/auth';
 import { redirect } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { generateCodeVerifier, generateState } from 'arctic';
 
-const OAUTH_STATE_COOKIE = 'oauthState';
-const OAUTH_CODE_VERIFIER_COOKIE = 'oauthCodeVerifier';
 const SCOPES = ['openid', 'profile', 'email', 'churros:profile'];
 
 export const GET: RequestHandler = ({ cookies }) => {
@@ -26,5 +24,6 @@ export const GET: RequestHandler = ({ cookies }) => {
 		httpOnly: true,
 		maxAge: 60 * 10
 	});
+
 	redirect(302, url);
 };
