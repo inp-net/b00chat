@@ -1,10 +1,12 @@
 import { type } from 'arktype';
+import { MajorSchema } from './users';
 
 export const SocketMessageClientSchema = type({
 	content: 'string',
 	senderName: 'string',
+	senderUid: 'string',
 	timestamp: 'number.integer',
-	major: 'string'
+	major: MajorSchema
 });
 
 export type SocketMessageClient = typeof SocketMessageClientSchema.inferOut;

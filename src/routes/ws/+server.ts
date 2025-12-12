@@ -11,9 +11,9 @@ export const socket: Socket = {
 		const socketId = event.request.headers.get('sec-websocket-key');
 
 		// TODO: uncomment when auth works
-		// if (!event.locals.me) {
-		// 	return { status: 401, body: 'Unauthorized' };
-		// }
+		if (!event.locals.user) {
+			return { status: 401, body: 'Unauthorized' };
+		}
 
 		if (!socketId) {
 			return { status: 400, body: 'Bad Request' };
@@ -35,6 +35,7 @@ export const socket: Socket = {
 		const socketPreviousMessage: SocketMessageClient[] = previousMessages.map((msg) => ({
 			content: msg.content,
 			senderName: msg.sender.name,
+			senderUid: msg.sender.uid,
 			timestamp: msg.sentAt.getTime(),
 			major: msg.sender.major
 		}));
@@ -67,16 +68,13 @@ export const socket: Socket = {
 					}
 				}
 
-				const dbMessage: Message = {
-					censored: false,
+				insertMessage({
 					content: parsed.content.content,
 					sentAt: new Date(parsed.content.timestamp),
 					receivedAt: new Date(),
-					id: '',
-					sender: 'planchetm'
-				};
+					sender: parsed.content.senderUid
+				});
 
-				insertMessage(dbMessage);
 				break;
 			}
 		}

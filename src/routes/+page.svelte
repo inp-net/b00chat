@@ -3,6 +3,7 @@
 	import ChatInput from '$lib/components/ChatInput.svelte';
 	import Message from '$lib/components/Message.svelte';
 	import { SocketMessageSchema, type SocketMessage } from '$lib/socket';
+	import { teamColor } from '$lib/teams.js';
 	import { SendIcon } from '@lucide/svelte';
 	import { ArkErrors } from 'arktype';
 	import { onMount } from 'svelte';
@@ -39,21 +40,15 @@
 
 			switch (message.type) {
 				case 'message':
-					const msg = message.content;
-					messages.unshift({
-						content: msg.content,
-						senderName: msg.senderName,
-						senderColor: 'blue'
-					});
+					const { content, senderName, major } = message.content;
+					const senderColor = teamColor({ major });
+					messages.unshift({ content, senderName, senderColor });
 					break;
 				case 'message_batch':
 					console.log('Received message batch:', message.content);
-					for (const msg of message.content) {
-						messages.unshift({
-							content: msg.content,
-							senderName: msg.senderName,
-							senderColor: 'yellow'
-						});
+					for (const { content, senderName, major } of message.content) {
+						const senderColor = teamColor({ major });
+						messages.unshift({ content, senderName, senderColor });
 					}
 					break;
 				case 'ping':
@@ -64,19 +59,23 @@
 	});
 
 	const sendMessage = (content: string) => {
+		if (!data.user) return;
+
 		messages.unshift({
 			content,
-			senderName: 'You',
-			senderColor: '#2ECC71'
+			senderName: data.user.name,
+			senderColor: teamColor(data.user)
 		});
+
 		if (ws && ws.readyState === WebSocket.OPEN) {
 			const message: SocketMessage = {
 				type: 'message',
 				content: {
 					content,
-					senderName: 'You', // Replace with actual sender info
+					senderName: data.user.name,
+					senderUid: data.user.uid,
 					timestamp: Date.now(),
-					major: 'SN'
+					major: data.user.major
 				}
 			};
 			ws.send(JSON.stringify(message));

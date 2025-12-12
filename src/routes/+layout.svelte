@@ -3,10 +3,9 @@
 	import Button from '$lib/components/Button.svelte';
 	import { LogOutIcon } from '@lucide/svelte';
 
-	let { children } = $props();
+	let { children, data } = $props();
 
-	// TODO: replace with real auth state
-	const connected = false;
+	const connected = $derived(Boolean(data.user));
 </script>
 
 <svelte:head>

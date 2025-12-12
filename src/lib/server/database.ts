@@ -53,7 +53,7 @@ export const DB: Database = {
 	Session: {}
 };
 
-export function insertMessage(message: Message) {
+export function insertMessage(message: typeof Tables.Message.inferIn) {
 	const msg = Tables.Message.assert(message);
 	DB.Message[msg.id] = msg;
 }
