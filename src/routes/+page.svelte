@@ -63,8 +63,10 @@
 	const sendMessage = (content: string) => {
 		if (!data.user) return;
 
+		const reducedContent = content.substring(0, 250);
+
 		messages.unshift({
-			content,
+			content: reducedContent,
 			senderName: data.user.name,
 			senderPronouns: data.user.pronouns,
 			senderColor: teamColor(data.user)
@@ -74,7 +76,7 @@
 			const message: SocketMessage = {
 				type: 'message',
 				content: {
-					content,
+					content: reducedContent,
 					senderName: data.user.name,
 					senderPronouns: data.user.pronouns,
 					senderUid: data.user.uid,

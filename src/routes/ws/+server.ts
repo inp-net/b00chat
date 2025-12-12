@@ -70,7 +70,7 @@ export const socket: Socket = {
 				}
 
 				insertMessage({
-					content: parsed.content.content,
+					content: parsed.content.content.substring(0, 250),
 					sentAt: new Date(parsed.content.timestamp),
 					receivedAt: new Date(),
 					sender: parsed.content.senderUid
