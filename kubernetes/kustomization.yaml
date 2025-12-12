@@ -1,7 +1,0 @@
-commonLabels:
-  app: b00chat
-
-resources:
-  - deployment.yaml
-  - service.yaml
-  - ingress.yaml
