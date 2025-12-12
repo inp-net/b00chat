@@ -30,14 +30,16 @@ export const socket: Socket = {
 		socketSessions.set(socketId, { user: socketPeer?.user ?? null, peer });
 
 		const previousMessages = latestMessages(10);
-		const socketPreviousMessage: SocketMessageClient[] = previousMessages.map((msg) => ({
-			content: msg.content,
-			senderName: msg.sender.name,
-			senderPronouns: msg.sender.pronouns,
-			senderUid: msg.sender.uid,
-			timestamp: msg.sentAt.getTime(),
-			major: msg.sender.major
-		}));
+		const socketPreviousMessage: SocketMessageClient[] = previousMessages
+			.map((msg) => ({
+				content: msg.content,
+				senderName: msg.sender.name,
+				senderPronouns: msg.sender.pronouns,
+				senderUid: msg.sender.uid,
+				timestamp: msg.sentAt.getTime(),
+				major: msg.sender.major
+			}))
+			.reverse();
 
 		peer.send(
 			JSON.stringify({ type: 'message_batch', content: socketPreviousMessage } as SocketMessage)
