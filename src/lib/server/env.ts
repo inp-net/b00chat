@@ -15,6 +15,7 @@ export const env = arkenv({
 	ADMIN_UIDS: type(/^[\w\d,]*$/)
 		.pipe((uids) => uids.split(','))
 		.default(''),
+	USER_INFO_URL: 'string.url',
 	// TODO
 	// MAX_MESSAGES_COUNT: 'number >= 10',
 	MODERATION_DELAY_MS: 'string.integer.parse = "1000"',
