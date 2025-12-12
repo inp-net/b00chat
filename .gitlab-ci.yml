@@ -39,7 +39,7 @@ deploy:
   extends: .builder
   stage: build
   rules:
-    - if: $CI_COMMIT_TAG =~ /^v\d+\.\d+\.\d+$/
+    - if: $CI_COMMIT_TAG =~ /^v\d+\.\d+\.\d+.*$/
     - when: manual
   script:
     - dockerbuild $(echo $CI_COMMIT_TAG || echo "dev-$CI_COMMIT_SHA" || echo dev) "true"
@@ -47,7 +47,7 @@ deploy:
 build:
   stage: build
   rules:
-    - if: $CI_COMMIT_TAG !~ /^v\d+\.\d+\.\d+$/
+    - if: $CI_COMMIT_TAG !~ /^v\d+\.\d+\.\d+.*$/
   image: node:24-slim
   script:
     - corepack enable
