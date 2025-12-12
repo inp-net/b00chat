@@ -54,7 +54,6 @@ export const DB: Database = {
 };
 
 export function insertMessage(message: Message) {
-	console.log('Inserting message:', message);
 	const msg = Tables.Message.assert(message);
 	DB.Message[msg.id] = msg;
 }
@@ -62,8 +61,6 @@ export function insertMessage(message: Message) {
 export function latestMessages(count: number) {
 	// We assume messages are inserted in "almost chronological" order:
 	// Get the last `count` messages and *then* sort them by sentAt.
-
-	console.log(DB.Message);
 
 	return Object.values(DB.Message)
 		.slice(-count)
