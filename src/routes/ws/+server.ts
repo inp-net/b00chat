@@ -1,4 +1,4 @@
-import { DB, insertMessage, latestMessages } from '$lib/server/database';
+import { insertMessage, latestMessages, type Message } from '$lib/server/database';
 import type { SocketMessage, SocketMessageClient } from '$lib/socket';
 import type { Peer, Socket } from '@sveltejs/kit';
 
@@ -59,7 +59,7 @@ export const socket: Socket = {
 			case 'ping':
 				peer.send(JSON.stringify({ type: 'pong' }));
 				break;
-			case 'message':
+			case 'message': {
 				// Broadcast the message to all connected peers
 				for (const [id, p] of socketSessions) {
 					if (p && id !== socketId) {
@@ -67,8 +67,18 @@ export const socket: Socket = {
 					}
 				}
 
-				insertMessage(parsed.content);
+				const dbMessage: Message = {
+					censored: false,
+					content: parsed.content.content,
+					sentAt: new Date(parsed.content.timestamp),
+					receivedAt: new Date(),
+					id: '',
+					sender: 'planchetm'
+				};
+
+				insertMessage(dbMessage);
 				break;
+			}
 		}
 	}
 };

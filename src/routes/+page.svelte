@@ -28,18 +28,20 @@
 
 			switch (message.type) {
 				case 'message':
+					const msg = message.content;
 					messages.unshift({
-						content: message.content.content,
-						senderName: message.content.senderName,
-						senderColor: message.content.senderColor
+						content: msg.content,
+						senderName: msg.senderName,
+						senderColor: 'blue'
 					});
 					break;
 				case 'message_batch':
+					console.log('Received message batch:', message.content);
 					for (const msg of message.content) {
 						messages.unshift({
 							content: msg.content,
 							senderName: msg.senderName,
-							senderColor: msg.senderColor
+							senderColor: 'yellow'
 						});
 					}
 					break;
@@ -49,6 +51,26 @@
 			}
 		};
 	});
+
+	const sendMessage = (content: string) => {
+		messages.unshift({
+			content,
+			senderName: 'You',
+			senderColor: '#2ECC71'
+		});
+		if (ws && ws.readyState === WebSocket.OPEN) {
+			const message: SocketMessage = {
+				type: 'message',
+				content: {
+					content,
+					senderName: 'You', // Replace with actual sender info
+					timestamp: Date.now(),
+					major: 'SN'
+				}
+			};
+			ws.send(JSON.stringify(message));
+		}
+	};
 </script>
 
 <div class="main">
@@ -64,16 +86,24 @@
 	<div class="footer">
 		{#if connected}
 			<div class="chat-input-container">
-				<ChatInput id="chat-input" />
+				<ChatInput
+					id="chat-input"
+					onkeypress={(e) => {
+						if (e.key === 'Enter') {
+							const input = e.target as HTMLInputElement;
+							if (input.value.trim() !== '') {
+								sendMessage(input.value.trim());
+								input.value = '';
+							}
+						}
+					}}
+					placeholder="Taper votre message..."
+				/>
 				<Button
 					onclick={() => {
 						const input = document.getElementById('chat-input') as HTMLInputElement;
 						if (input && input.value.trim() !== '') {
-							messages.unshift({
-								content: input.value,
-								senderName: 'You',
-								senderColor: '#2ECC71'
-							});
+							sendMessage(input.value.trim());
 							input.value = '';
 						}
 					}}
