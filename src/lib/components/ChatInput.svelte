@@ -20,24 +20,24 @@
 <style>
 	.chat-input {
 		display: flex;
-		gap: var(--space-md);
+		gap: var(--size-md);
 		align-items: center;
 		width: 100%;
 	}
 
 	.sender {
 		display: flex;
-		gap: var(--space-xs);
+		gap: var(--size-xs);
 	}
 
 	input {
-		background-color: var(--color-normal);
+		background-color: var(--color-bg);
 		font: inherit;
 		border-radius: var(--corner-radius);
 		border: none;
-		padding: var(--space-xs) var(--space-md);
+		padding: var(--size-xs) var(--size-md);
 		border: 2px solid var(--color-border);
-		color: var(--color-high-contrast);
+		color: var(--color-fg-high);
 		display: flex;
 		align-items: center;
 		justify-content: center;
@@ -48,6 +48,6 @@
 	input:focus {
 		outline: none;
 		border-color: var(--color-accent);
-		box-shadow: 0 0 0 2px var(--color-accent-light);
+		box-shadow: 0 0 0 2px var(--color-accent);
 	}
 </style>

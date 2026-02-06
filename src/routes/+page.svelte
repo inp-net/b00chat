@@ -3,8 +3,9 @@
 	import Button from '$lib/components/Button.svelte';
 	import ChatInput from '$lib/components/ChatInput.svelte';
 	import Message from '$lib/components/Message.svelte';
-	import { SocketMessageSchema, type SocketMessage } from '$lib/socket';
+	import { SocketMessageSchema } from '$lib/socket';
 	import { teamColor } from '$lib/teams.js';
+	import type { Major } from '$lib/users.js';
 	import { SendIcon } from '@lucide/svelte';
 	import { ArkErrors } from 'arktype';
 	import { onMount } from 'svelte';
@@ -14,17 +15,32 @@
 	const isOverlay = $derived(page.url.searchParams.has('overlay'));
 
 	type Message = {
+		id: string;
 		content: string;
+		senderUid: string;
 		senderName: string;
-		senderPronouns: string;
 		senderColor?: string;
+		censored?: boolean;
 	};
 
 	const messages: Message[] = $state([]);
 
+	const addMessage = (msg: {
+		id: string;
+		content: string;
+		senderUid: string;
+		senderName: string;
+		major: Major;
+		censored: boolean;
+	}) => {
+		const senderColor = teamColor({ major: msg.major });
+		messages.unshift({ ...msg, senderColor });
+	};
+
+	// Initialize WebSocket connection
 	let ws: WebSocket | null = $state(null);
 	onMount(() => {
-		ws = new WebSocket('/ws');
+		ws = new WebSocket('/api/ws');
 
 		ws.onopen = () => {
 			console.log('WebSocket connected');
@@ -41,20 +57,20 @@
 			}
 
 			switch (message.type) {
-				case 'message':
-					const { content, senderName, senderPronouns, major } = message.content;
-					const senderColor = teamColor({ major });
-					messages.unshift({ content, senderName, senderPronouns, senderColor });
+				case 'message:created':
+					addMessage(message.content);
 					break;
-				case 'message_batch':
-					console.log('Received message batch:', message.content);
-					for (const { content, senderName, senderPronouns, major } of message.content) {
-						const senderColor = teamColor({ major });
-						messages.unshift({ content, senderName, senderPronouns, senderColor });
+				case 'message:created:batch':
+					for (const msg of message.content) {
+						addMessage(msg);
 					}
 					break;
-				case 'ping':
-					// Handle ping if necessary
+				case 'message:censored':
+					const messageId = message.content;
+					const index = messages.findIndex((msg) => msg.id === messageId);
+					if (index !== -1) {
+						messages[index].censored = true;
+					}
 					break;
 			}
 		};
@@ -63,22 +79,12 @@
 	const sendMessage = (content: string) => {
 		if (!data.user) return;
 
-		const reducedContent = content.substring(0, 250);
-
-		messages.unshift({
-			content: reducedContent,
-			senderName: data.user.name,
-			senderPronouns: data.user.pronouns,
-			senderColor: teamColor(data.user)
-		});
-
 		if (ws && ws.readyState === WebSocket.OPEN) {
-			const message: SocketMessage = {
-				type: 'message',
+			const message: typeof SocketMessageSchema.inferIn = {
+				type: 'message:create',
 				content: {
-					content: reducedContent,
+					content: content,
 					senderName: data.user.name,
-					senderPronouns: data.user.pronouns,
 					senderUid: data.user.uid,
 					timestamp: Date.now(),
 					major: data.user.major
@@ -89,16 +95,6 @@
 	};
 
 	const minigame = $state(false);
-
-	let messagesArea: HTMLElement | undefined = $state();
-	let scrollIsLocked = $state(true);
-	$effect(() => {
-		messages;
-
-		if (!scrollIsLocked) return;
-
-		messagesArea?.scrollTo({ top: messagesArea.scrollHeight });
-	});
 </script>
 
 <div class="main" class:is-overlay={isOverlay}>
@@ -107,9 +103,9 @@
 			<div class="minigame-container"></div>
 		</div>
 	{/if}
-	<div class="messages" class:is-overlay={isOverlay} bind:this={messagesArea}>
+	<div class="messages" class:is-overlay={isOverlay}>
 		{#each messages as message}
-			<Message {...message} />
+			<Message {...message} showControls={!isOverlay || data.user?.moderator} />
 		{/each}
 	</div>
 	{#if !isOverlay}
@@ -119,7 +115,6 @@
 					<ChatInput
 						sender={{
 							senderName: data.user.name,
-							senderPronouns: data.user.pronouns,
 							senderColor: teamColor(data.user)
 						}}
 						id="chat-input"
@@ -171,9 +166,9 @@
 
 	.minigame-container {
 		height: 40dvh;
-		margin: var(--space-xs);
+		margin: var(--size-xs);
 		border-radius: var(--corner-radius);
-		background-color: color-mix(in oklch, var(--color-solid-background), transparent 20%);
+		background-color: color-mix(in oklch, var(--color-bg-solid), transparent 20%);
 		border: 2px solid var(--color-border);
 	}
 
@@ -186,14 +181,14 @@
 	.chat-input-container {
 		display: flex;
 		justify-content: space-around;
-		gap: var(--space-sm);
-		margin: 0 var(--space-md);
+		gap: var(--size-sm);
+		margin: 0 var(--size-md);
 	}
 
 	.messages {
 		width: 100%;
 		max-height: 85dvh;
-		margin: var(--space-md);
+		margin: var(--size-md);
 		display: flex;
 		flex-direction: column-reverse;
 		overflow-y: scroll;

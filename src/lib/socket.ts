@@ -1,21 +1,25 @@
 import { type } from 'arktype';
 import { MajorSchema } from './users';
+import { ID } from './types';
 
-export const SocketMessageClientSchema = type({
-	content: 'string',
-	senderName: 'string',
-	senderUid: 'string',
-	senderPronouns: 'string',
-	timestamp: 'number.integer',
-	major: MajorSchema
+export const ClientCreateMessageSchema = type({
+    content: 'string.trim',
+    senderUid: 'string',
+    senderName: 'string',
+    major: MajorSchema,
+    timestamp: 'number'
 });
 
-export type SocketMessageClient = typeof SocketMessageClientSchema.inferOut;
+export const ClientMessageSchema = ClientCreateMessageSchema.and({
+    id: ID,
+    censored: 'boolean'
+})
+
+export type ClientMessage = typeof ClientMessageSchema.inferOut;
 
 export const SocketMessageSchema = type.or(
-	{ type: '"ping"' },
-	{ type: '"message"', content: SocketMessageClientSchema },
-	{ type: '"message_batch"', content: SocketMessageClientSchema.array() }
+	{ type: '"message:create"', content: ClientCreateMessageSchema },
+	{ type: '"message:created"', content: ClientMessageSchema },
+	{ type: '"message:created:batch"', content: ClientMessageSchema.array() },
+    { type: '"message:censored"', content: ID }
 );
-
-export type SocketMessage = typeof SocketMessageSchema.inferOut;

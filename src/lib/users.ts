@@ -14,12 +14,11 @@ export const ChurrosProfile = type({
 	firstName: 'string > 0',
 	lastName: 'string > 0',
 	major: { uid: MajorSchema }
-}).pipe(({ uid, churrosNickname, major, pictureURL, pronouns }) => ({
+}).pipe(({ uid, churrosNickname, major, pictureURL }) => ({
 	uid,
 	name: churrosNickname || uid,
 	major: major.uid,
 	pictureURL,
-	pronouns
 }));
 
 export type Major = typeof MajorSchema.infer;

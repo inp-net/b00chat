@@ -2,7 +2,6 @@
 	export type SenderProps = {
 		senderName: string;
 		senderColor?: string;
-		senderPronouns?: string;
 	};
 </script>
 
@@ -19,6 +18,6 @@
 <style>
 	.sender-name {
 		font-weight: bold;
-		color: var(--color-high-contrast);
+		color: var(--color-fg-high);
 	}
 </style>
