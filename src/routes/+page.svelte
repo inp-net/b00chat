@@ -1,100 +1,136 @@
 <script lang="ts">
 	import { page } from '$app/state';
+	import { onMount, onDestroy } from 'svelte';
+
 	import Button from '$lib/components/Button.svelte';
 	import ChatInput from '$lib/components/ChatInput.svelte';
 	import Message from '$lib/components/Message.svelte';
+
 	import { SocketMessageSchema } from '$lib/socket';
-	import { teamColor } from '$lib/teams.js';
-	import type { Major } from '$lib/users.js';
+	import { teamColor } from '$lib/teams';
+	import type { Major } from '$lib/users';
+
 	import { SendIcon } from '@lucide/svelte';
 	import { ArkErrors } from 'arktype';
-	import { onMount } from 'svelte';
 
 	const { data } = $props();
-
 	const isOverlay = $derived(page.url.searchParams.has('overlay'));
 
-	type Message = {
+	type ChatMessage = {
 		id: string;
 		content: string;
 		senderUid: string;
 		senderName: string;
 		senderColor?: string;
+		senderBanned?: boolean;
 		censored?: boolean;
 	};
 
-	const messages: Message[] = $state([]);
+	const messages = $state<ChatMessage[]>([]);
+	const minigame = $state(false);
 
-	const addMessage = (msg: {
+	let ws: WebSocket | null = $state(null);
+	let chatInput: string = $state('');
+
+	/* ----------------------------- helpers ----------------------------- */
+
+	function withColor(msg: {
 		id: string;
 		content: string;
 		senderUid: string;
 		senderName: string;
+		senderBanned: boolean;
 		major: Major;
 		censored: boolean;
-	}) => {
-		const senderColor = teamColor({ major: msg.major });
-		messages.unshift({ ...msg, senderColor });
-	};
-
-	// Initialize WebSocket connection
-	let ws: WebSocket | null = $state(null);
-	onMount(() => {
-		ws = new WebSocket('/api/ws');
-
-		ws.onopen = () => {
-			console.log('WebSocket connected');
+	}): ChatMessage {
+		return {
+			...msg,
+			senderColor: teamColor({ major: msg.major })
 		};
-		ws.onerror = (error) => {
-			console.error('WebSocket error:', error);
-		};
-		ws.onmessage = (event) => {
-			const message = SocketMessageSchema(JSON.parse(event.data));
+	}
 
-			if (message instanceof ArkErrors) {
-				console.error('Invalid message received:', message.summary);
-				return;
-			}
+	function updateMessage(id: string, updater: (msg: ChatMessage) => void) {
+		const msg = messages.find((m) => m.id === id);
+		if (msg) updater(msg);
+	}
 
-			switch (message.type) {
-				case 'message:created':
-					addMessage(message.content);
-					break;
-				case 'message:created:batch':
-					for (const msg of message.content) {
-						addMessage(msg);
-					}
-					break;
-				case 'message:censored':
-					const messageId = message.content;
-					const index = messages.findIndex((msg) => msg.id === messageId);
-					if (index !== -1) {
-						messages[index].censored = true;
-					}
-					break;
-			}
-		};
-	});
+	function updateUserMessages(uid: string, updater: (msg: ChatMessage) => void) {
+		messages.forEach((msg) => {
+			if (msg.senderUid === uid) updater(msg);
+		});
+	}
 
-	const sendMessage = (content: string) => {
-		if (!data.user) return;
+	function sendMessage(content: string) {
+		if (!data.user || !ws || ws.readyState !== WebSocket.OPEN) return;
 
-		if (ws && ws.readyState === WebSocket.OPEN) {
-			const message: typeof SocketMessageSchema.inferIn = {
+		ws.send(
+			JSON.stringify({
 				type: 'message:create',
 				content: {
-					content: content,
+					content,
 					senderName: data.user.name,
 					senderUid: data.user.uid,
 					timestamp: Date.now(),
 					major: data.user.major
 				}
-			};
-			ws.send(JSON.stringify(message));
-		}
-	};
+			} satisfies typeof SocketMessageSchema.inferIn)
+		);
+	}
 
-	const minigame = $state(false);
+	function submitInput() {
+		if (!chatInput) return;
+
+		const value = chatInput.trim();
+		if (!value) return;
+
+		sendMessage(value);
+		chatInput = '';
+	}
+
+	/* --------------------------- websocket ---------------------------- */
+
+	onMount(() => {
+		ws = new WebSocket('/api/ws');
+
+		ws.onmessage = (event) => {
+			const parsed = SocketMessageSchema(JSON.parse(event.data));
+
+			if (parsed instanceof ArkErrors) {
+				console.error('Invalid WS payload:', parsed.summary);
+				return;
+			}
+
+			switch (parsed.type) {
+				case 'message:created':
+					messages.unshift(withColor(parsed.content));
+					break;
+
+				case 'message:created:batch':
+					parsed.content.map(withColor).forEach((m) => messages.unshift(m));
+					break;
+
+				case 'message:censored':
+					updateMessage(parsed.content, (m) => (m.censored = true));
+					break;
+
+				case 'message:uncensored':
+					updateMessage(parsed.content, (m) => (m.censored = false));
+					break;
+
+				case 'user:banned':
+					updateUserMessages(parsed.content, (m) => (m.senderBanned = true));
+					break;
+
+				case 'user:unbanned':
+					updateUserMessages(parsed.content, (m) => (m.senderBanned = false));
+					break;
+			}
+		};
+	});
+
+	onDestroy(() => {
+		ws?.close();
+	});
 </script>
 
 <div class="main" class:is-overlay={isOverlay}>
@@ -103,41 +139,30 @@
 			<div class="minigame-container"></div>
 		</div>
 	{/if}
+
 	<div class="messages" class:is-overlay={isOverlay}>
 		{#each messages as message}
-			<Message {...message} showControls={!isOverlay || data.user?.moderator} />
+			<Message {...message} showControls={!isOverlay && data.user?.moderator} />
 		{/each}
 	</div>
+
 	{#if !isOverlay}
 		<div class="footer">
 			<div class="chat-input-container">
 				{#if data.user}
 					<ChatInput
+						id="chat-input"
+						bind:value={chatInput}
 						sender={{
 							senderName: data.user.name,
 							senderColor: teamColor(data.user)
 						}}
-						id="chat-input"
-						onkeypress={(e) => {
-							if (e.key === 'Enter') {
-								const input = e.target as HTMLInputElement;
-								if (input.value.trim() !== '') {
-									sendMessage(input.value.trim());
-									input.value = '';
-								}
-							}
-						}}
+						onkeypress={(e) => e.key === 'Enter' && submitInput()}
 						placeholder="Taper votre message..."
+						autofocus
 					/>
-					<Button
-						onclick={() => {
-							const input = document.getElementById('chat-input') as HTMLInputElement;
-							if (input && input.value.trim() !== '') {
-								sendMessage(input.value.trim());
-								input.value = '';
-							}
-						}}
-					>
+
+					<Button onclick={submitInput}>
 						<SendIcon />
 					</Button>
 				{:else}

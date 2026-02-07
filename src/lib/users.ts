@@ -18,7 +18,7 @@ export const ChurrosProfile = type({
 	uid,
 	name: churrosNickname || uid,
 	major: major.uid,
-	pictureURL,
+	pictureURL
 }));
 
 export type Major = typeof MajorSchema.infer;

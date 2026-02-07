@@ -1,46 +1,37 @@
 <script lang="ts">
-	import { TrashIcon, ShieldBanIcon } from '@lucide/svelte';
+	import { TrashIcon, ShieldBanIcon, ShieldOffIcon, UndoIcon } from '@lucide/svelte';
 	import Button from './Button.svelte';
 	import Sender from './Sender.svelte';
+	import { banUser, censorMessage, unbanUser, uncensorMessage } from '$lib/client';
 
 	type MessageProps = {
 		id: string;
 		content: string;
 		senderUid: string;
 		senderName: string;
+		senderBanned?: boolean;
 		senderColor?: string;
 		showControls?: boolean;
 		censored?: boolean;
 	};
 
 	let { id, content, censored, showControls, ...sender }: MessageProps = $props();
-
-	const deleteMessage = async () => {
-		const response = await fetch(`/api/messages/${id}`, {
-			method: 'DELETE'
-		});
-
-		if (!response.ok) {
-			console.error('Failed to delete message');
-		}
-	};
-
-	const banUser = async () => {
-		const response = await fetch(`/api/users/${sender.senderUid}/ban`, {
-			method: 'POST'
-		});
-
-		if (!response.ok) {
-			console.error('Failed to ban user');
-		}
-	};
 </script>
 
 <div class="message">
 	{#if showControls}
 		<div class="controls">
-			<Button variant="ghost" icon={TrashIcon} onclick={deleteMessage} />
-			<Button variant="ghost" icon={ShieldBanIcon} onclick={banUser} />
+			<Button
+				variant="ghost"
+				icon={censored ? UndoIcon : TrashIcon}
+				onclick={() => (censored ? uncensorMessage(id) : censorMessage(id))}
+			/>
+			<Button
+				variant="ghost"
+				icon={sender.senderBanned ? ShieldOffIcon : ShieldBanIcon}
+				onclick={() =>
+					sender.senderBanned ? unbanUser(sender.senderUid) : banUser(sender.senderUid)}
+			/>
 		</div>
 	{/if}
 	<span class:censored>
@@ -52,6 +43,7 @@
 <style>
 	.message {
 		display: flex;
+		height: var(--size-lg);
 		align-items: center;
 		gap: var(--size-sm);
 	}

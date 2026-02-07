@@ -1,4 +1,4 @@
-import { banUser, censorMessage, DB } from '$lib/server/database';
+import { DB, unbanUser, uncensorMessage } from '$lib/server/database';
 import { broadcastMessage, socketSessions } from '$lib/server/socketSessions';
 import type { RequestHandler } from './$types';
 
@@ -13,23 +13,16 @@ export const POST: RequestHandler = async ({ params, locals }) => {
 		return new Response('Forbidden', { status: 403 });
 	}
 
-	// Also censor all their previous messages.
+	// Also uncensor all their previous messages.
 	for (const message of Object.values(DB.Message)) {
-		if (message.sender === id && !message.censored) {
-			censorMessage(message.id);
-			broadcastMessage({ type: 'message:censored', content: message.id });
+		if (message.sender === id && message.censored) {
+			uncensorMessage(message.id);
+			broadcastMessage({ type: 'message:uncensored', content: message.id });
 		}
 	}
 
-	banUser(id);
-    broadcastMessage({ type: 'user:banned', content: id });
-
-	// Close any active WebSocket connections for the banned user.
-	socketSessions.forEach(({ userUid, peer }) => {
-		if (userUid === id && peer) {
-			peer.close();
-		}
-	});
+	unbanUser(id);
+        broadcastMessage({ type: 'user:unbanned', content: id });
 
 	return new Response(null, { status: 204 });
 };

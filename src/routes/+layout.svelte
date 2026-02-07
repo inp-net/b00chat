@@ -5,6 +5,7 @@
 	import favicon from '$lib/assets/favicon.svg';
 	import Button from '$lib/components/Button.svelte';
 	import { LogOutIcon } from '@lucide/svelte';
+	import { Toaster } from 'svelte-sonner';
 
 	let { children, data } = $props();
 
@@ -27,6 +28,8 @@
 			{/if}
 		</nav>
 	{/if}
+
+	<Toaster position="top-center" />
 
 	{@render children()}
 </div>

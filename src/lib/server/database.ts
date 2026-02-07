@@ -17,11 +17,8 @@ export const Tables = {
 		receivedAt: Now,
 		sender: UID,
 		content: 'string.trim',
-		'censoredBy?': UID
-	}).pipe((message) => ({
-		...message,
-		censored: Boolean(message.censoredBy)
-	})),
+		censored: 'boolean'
+	}),
 
 	Session: type({
 		id: ID,
@@ -30,7 +27,7 @@ export const Tables = {
 	}).pipe((session) => ({
 		...session,
 		validUntil: addHours(session.createdAt, env.SESSION_EXPIRATION_HOURS)
-	})),
+	}))
 };
 
 export type User = typeof Tables.User.inferOut;
@@ -44,13 +41,13 @@ type Database = {
 export const DB: Database = {
 	User: {},
 	Message: {},
-	Session: {},
+	Session: {}
 };
 
 export function insertMessage(message: typeof Tables.Message.inferIn) {
 	const msg = Tables.Message.assert(message);
 	DB.Message[msg.id] = msg;
-    return msg;
+	return msg;
 }
 
 export function latestMessages(count: number) {
@@ -66,17 +63,26 @@ export function latestMessages(count: number) {
 		}));
 }
 
-export function censorMessage(id: string, censoredBy: string) {
-	DB.Message[id] = Tables.Message.assert({
-		...DB.Message[id],
-		censoredBy
-	});
+export function censorMessage(id: string) {
+	DB.Message[id].censored = true;
+}
+
+export function uncensorMessage(id: string) {
+	DB.Message[id].censored = false;
 }
 
 export function banUser(uid: string) {
-    DB.User[uid].banned = true;
+	DB.User[uid].banned = true;
+}
+
+export function unbanUser(uid: string) {
+	DB.User[uid].banned = false;
 }
 
 export function makeModerator(uid: string) {
 	DB.User[uid].moderator = true;
+}
+
+export function removeModerator(uid: string) {
+	DB.User[uid].moderator = false;
 }

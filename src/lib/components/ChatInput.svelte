@@ -5,16 +5,17 @@
 
 	type InputProps = HTMLInputAttributes & {
 		sender: SenderProps;
+		value?: string;
 	};
 
-	let { sender, ...rest }: InputProps = $props();
+	let { sender, value = $bindable(''), ...rest }: InputProps = $props();
 </script>
 
 <div class="chat-input">
 	<div class="sender">
 		<Sender {...sender} />
 	</div>
-	<input {...rest} />
+	<input bind:value {...rest} />
 </div>
 
 <style>
