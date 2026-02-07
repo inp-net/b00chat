@@ -4,9 +4,9 @@ metadata:
   name: b00chat
 spec:
   ports:
-  - name: b00chat
-    port: 3000
-    protocol: TCP
-    targetPort: 3000
+    - name: b00chat
+      port: 3000
+      protocol: TCP
+      targetPort: 3000
   selector:
     app: b00chat

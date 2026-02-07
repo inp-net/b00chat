@@ -1,128 +1,199 @@
+/* Constants */
 :root {
 	color-scheme: light;
 
-	/* Spacing based on golden ratio */
-	--space-xxs: 0.236rem;
-	--space-xs: 0.382rem;
-	--space-sm: 0.618rem;
-	--space-md: 1rem;
-	--space-lg: 1.618rem;
-	--space-xl: 2.618rem;
+	/* Sizing based on golden ratio */
+	--golden-ratio: 1.618;
+
+	--size-xxs: calc(1rem / (3 * var(--golden-ratio)));
+	--size-xs: calc(1rem / (2 * var(--golden-ratio)));
+	--size-sm: calc(1rem / var(--golden-ratio));
+	--size-md: 1rem;
+	--size-lg: calc(1rem * var(--golden-ratio));
+	--size-xl: calc(1rem * 2 * var(--golden-ratio));
+	--size-xxl: calc(1rem * 3 * var(--golden-ratio));
 
 	/* Corner radius */
 	--corner-radius: 1.25rem;
 	--corner-radius-full: 9999px;
 
 	/* Special paddings & gaps */
+	--padding-x-icon: 0.61rem;
 	--padding-y-icon: 0.485rem;
 	--gap-icon: 0.44rem;
 
 	/* System colors */
-	--color-success: light-dark(#36cb40, #1f7a25);
-	--color-warning: light-dark(#fabf38, #c78c05);
-	--color-error: light-dark(#ff6057, #c73830);
+	--color-success: light-dark(oklch(0.7385 0.2172 143.8), oklch(0.509 0.1472 143.88));
+	--color-warning: light-dark(oklch(0.7368 0.156 83.3), oklch(0.681 0.1407 78.49));
+	--color-danger: light-dark(oklch(0.6948 0.1954 26.65), oklch(0.555 0.1812 27.87));
 
-	/* Palette generator, inspired from Radix Colors */
-	--l: 48.87%;
-	--c: 0.1923;
-	--h: 282.69;
+	/* Shadows */
+	--shadow-surface: 0 -1px 6px 0 rgba(0, 0, 0, 0.2) inset;
 
-	/* Light component of LCH */
-	--ll1: 99.4%;
-	--ll2: 98.3%;
-	--ll3: 96.1%;
-	--ll4: 93.5%;
-	--ll5: 90.3%;
-	--ll6: 86.3%;
-	--ll7: 80.7%;
-	--ll8: 73%;
-	--ll11: 51%;
-	--ll12: 31.3%;
+	/* -*- Palette generator -*- */
 
-	--ld1: 17.8%;
-	--ld2: 20.5%;
-	--ld3: 25.2%;
-	--ld4: 29%;
-	--ld5: 33.1%;
-	--ld6: 38.1%;
-	--ld7: 44.9%;
-	--ld8: 54%;
-	--ld11: 78.4%;
-	--ld12: 90%;
+	/* Inspiration: https://www.radix-ui.com/colors */
+	/* Why OKLCH? https://evilmartians.com/chronicles/oklch-in-css-why-quit-rgb-hsl */
+	--base-color: oklch(0.49 0.192 283);
+	--color-accent: var(--base-color);
+	--color-neutral: oklch(from var(--base-color) 0.6453 0.0165 h);
+
+	/* Lightness component of LCH */
+
+	/* Light mode following the curve: */
+	/* -0.5x^2 + x + 99 */
+	--ll1: 99.5%;
+	--ll2: 99%;
+	--ll3: 97.5%;
+	--ll4: 95%;
+	--ll5: 91.5%;
+	--ll6: 87%;
+	--ll7: 81.5%;
+	--ll8: 75%;
+	--ll11: 49.5%;
+	--ll12: 39%;
+
+	/* Dark mode following the curve: */
+	/* 0.5x^2 + x + 16 */
+	--ld1: 17.5%;
+	--ld2: 20%;
+	--ld3: 23.5%;
+	--ld4: 28%;
+	--ld5: 33.5%;
+	--ld6: 40%;
+	--ld7: 47.5%;
+	--ld8: 56%;
+	--ld11: 87.5%;
+	--ld12: 100%;
 
 	/* Chroma component of LCH */
 	--max-c: 0.25;
-	--c-factor: min(1, calc(var(--c) / var(--max-c)));
-	--c1: calc(0.013 * var(--c-factor));
-	--c2: calc(0.026 * var(--c-factor));
-	--c3: calc(0.09 * var(--c-factor));
-	--c4: calc(0.144 * var(--c-factor));
-	--c5: calc(0.16 * var(--c-factor));
-	--c6: calc(0.17 * var(--c-factor));
-	--c7: calc(0.18 * var(--c-factor));
-	--c8: calc(0.22 * var(--c-factor));
-	--c11: calc(0.25 * var(--c-factor));
-	--c12: calc(0.09 * var(--c-factor));
+	--cf1: calc(0.013 / var(--max-c));
+	--cf2: calc(0.026 / var(--max-c));
+	--cf3: calc(0.09 / var(--max-c));
+	--cf4: calc(0.144 / var(--max-c));
+	--cf5: calc(0.16 / var(--max-c));
+	--cf6: calc(0.17 / var(--max-c));
+	--cf7: calc(0.18 / var(--max-c));
+	--cf8: calc(0.22 / var(--max-c));
+	--cf11: calc(0.15 / var(--max-c));
+	--cf12: calc(0.09 / var(--max-c));
 
 	/* Hover constants */
-	--lightness-delta: -5%;
-	--chroma-delta: 0.02;
+	--hover-lightness-delta: -0.075;
+	--hover-chroma-delta: 0.015;
 
-	/* Foreground constants */
-	--lightness-treshold: 75%;
+	/* Active constants */
+	--active-lightness-delta: -0.125;
+	--active-chroma-delta: 0.01;
 
-	/* https://www.radix-ui.com/colors/docs/palette-composition/understanding-the-scale */
-	--color-background: light-dark(
-		oklch(var(--ll1) var(--c1) var(--h)),
-		oklch(var(--ld1) var(--c1) var(--h))
+	/* Text lightness threshold */
+	--lightness-threshold: 0.75;
+	--low-l-fg: 0.3;
+	--high-l-fg: 0.99;
+}
+
+/* Variables */
+* {
+	/* App background */
+	--color-bg-app: light-dark(
+		oklch(from var(--base-color) var(--ll1) calc(c * var(--cf1)) h),
+		oklch(from var(--base-color) var(--ld1) calc(c * var(--cf1)) h)
 	);
-	--color-subtle-background: light-dark(
-		oklch(var(--ll2) var(--c2) var(--h)),
-		oklch(var(--ld2) var(--c2) var(--h))
+
+	/* Subtle background */
+	--color-bg-subtle: light-dark(
+		oklch(from var(--base-color) var(--ll2) calc(c * var(--cf2)) h),
+		oklch(from var(--base-color) var(--ld2) calc(c * var(--cf2)) h)
 	);
-	--color-normal: light-dark(
-		oklch(var(--ll3) var(--c3) var(--h)),
-		oklch(var(--ld3) var(--c3) var(--h))
+
+	/* Element background */
+	--color-bg: light-dark(
+		oklch(from var(--base-color) var(--ll3) calc(c * var(--cf3)) h),
+		oklch(from var(--base-color) var(--ld3) calc(c * var(--cf3)) h)
 	);
-	--color-hover: light-dark(
-		oklch(var(--ll4) var(--c4) var(--h)),
-		oklch(var(--ld4) var(--c4) var(--h))
+
+	/* Hovered element background */
+	--color-bg-hover: light-dark(
+		oklch(from var(--base-color) var(--ll4) calc(c * var(--cf4)) h),
+		oklch(from var(--base-color) var(--ld4) calc(c * var(--cf4)) h)
 	);
-	--color-selected: light-dark(
-		oklch(var(--ll5) var(--c5) var(--h)),
-		oklch(var(--ld5) var(--c5) var(--h))
+
+	/* Active / selected element background */
+	--color-bg-active: light-dark(
+		oklch(from var(--base-color) var(--ll5) calc(c * var(--cf5)) h),
+		oklch(from var(--base-color) var(--ld5) calc(c * var(--cf5)) h)
 	);
-	--color-disabled: light-dark(
-		oklch(var(--ll6) var(--c6) var(--h)),
-		oklch(var(--ld6) var(--c6) var(--h))
+
+	/* Subtle borders and separators */
+	--color-border-subtle: light-dark(
+		oklch(from var(--base-color) var(--ll6) calc(c * var(--cf6)) h),
+		oklch(from var(--base-color) var(--ld6) calc(c * var(--cf6)) h)
 	);
+
+	/* Borders and separators */
 	--color-border: light-dark(
-		oklch(var(--ll7) var(--c7) var(--h)),
-		oklch(var(--ld7) var(--c7) var(--h))
+		oklch(from var(--base-color) var(--ll7) calc(c * var(--cf7)) h),
+		oklch(from var(--base-color) var(--ld7) calc(c * var(--cf7)) h)
 	);
-	--color-focus-border: light-dark(
-		oklch(var(--ll8) var(--c8) var(--h)),
-		oklch(var(--ld8) var(--c8) var(--h))
+
+	/* Focus border */
+	--color-border-focus: light-dark(
+		oklch(from var(--base-color) var(--ll8) calc(c * var(--cf8)) h),
+		oklch(from var(--base-color) var(--ld8) calc(c * var(--cf8)) h)
 	);
-	--color-solid-background: light-dark(
-		oklch(var(--l) var(--c) var(--h)),
-		oklch(var(--l) var(--c) var(--h))
+
+	/* Solid backgrounds */
+	--color-bg-solid: var(--base-color);
+
+	/* Hovered solid backgrounds */
+	--color-bg-solid-hover: oklch(
+		from var(--base-color) calc(l + var(--hover-lightness-delta))
+			calc(c + var(--hover-chroma-delta)) h
 	);
-	--color-solid-hover-background: light-dark(
-		oklch(calc(var(--l) + var(--lightness-delta)) calc(var(--c) + var(--chroma-delta)) var(--h)),
-		oklch(calc(var(--l) + var(--lightness-delta)) calc(var(--c) + var(--chroma-delta)) var(--h))
+
+	/* Active solid backgrounds */
+	--color-bg-solid-active: oklch(
+		from var(--base-color) calc(l + var(--active-lightness-delta))
+			calc(c + var(--active-chroma-delta)) h
 	);
-	--color-low-contrast: light-dark(
-		oklch(var(--ll11) var(--c11) var(--h)),
-		oklch(var(--ld11) var(--c11) var(--h))
+
+	/* Low-contrast texts */
+	--color-fg-low: light-dark(
+		oklch(from var(--base-color) var(--ll11) calc(c * var(--cf11)) h),
+		oklch(from var(--base-color) var(--ld11) calc(c * var(--cf11)) h)
 	);
-	--color-high-contrast: light-dark(
-		oklch(var(--ll12) var(--c12) var(--h)),
-		oklch(var(--ld12) var(--c12) var(--h))
+
+	/* High-contrast texts */
+	--color-fg-high: light-dark(
+		oklch(from var(--base-color) var(--ll12) calc(c * var(--cf12)) h),
+		oklch(from var(--base-color) var(--ld12) calc(c * var(--cf12)) h)
 	);
-	--color-solid-foreground: color-mix(
-		in oklch,
-		var(--color-high-contrast) calc((var(--l) - var(--lightness-treshold)) * 1000),
-		var(--color-background) calc((var(--lightness-treshold) - var(--l)) * 1000)
+
+	/* Text on solid backgrounds */
+	/* Conditional based on lightness (if < threshold, light color else dark color) */
+	--color-fg-solid: oklch(
+		from var(--color-bg-solid)
+			calc(
+				var(--high-l-fg) - (var(--high-l-fg) - var(--low-l-fg)) *
+					round(l - (var(--lightness-threshold) - 0.5))
+			)
+			calc(c * var(--cf12)) h
 	);
+}
+
+.success {
+	--base-color: var(--color-success);
+}
+
+.warning {
+	--base-color: var(--color-warning);
+}
+
+.danger {
+	--base-color: var(--color-danger);
+}
+
+.neutral {
+	--base-color: var(--color-neutral);
 }

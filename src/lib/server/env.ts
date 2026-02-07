@@ -1,4 +1,6 @@
-import arkenv, { type } from 'arkenv';
+import arkenv from 'arkenv';
+import { type } from 'arktype';
+
 import * as dotenv from 'dotenv';
 
 dotenv.config();

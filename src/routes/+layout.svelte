@@ -1,8 +1,11 @@
 <script lang="ts">
+	import '$lib/styles/tokens.css';
+	import '$lib/styles/base.css';
 	import { page } from '$app/state';
 	import favicon from '$lib/assets/favicon.svg';
 	import Button from '$lib/components/Button.svelte';
 	import { LogOutIcon } from '@lucide/svelte';
+	import { Toaster } from 'svelte-sonner';
 
 	let { children, data } = $props();
 
@@ -19,36 +22,31 @@
 		<nav>
 			<h1>B00chat</h1>
 			{#if connected}
-				<Button href="/logout" variant="ghost" class="logout-button">
-					<LogOutIcon size={24} />
+				<Button href="/logout" variant="ghost">
+					<LogOutIcon size={24} color="var(--color-fg-solid)" />
 				</Button>
 			{/if}
 		</nav>
 	{/if}
 
+	<Toaster position="top-center" />
+
 	{@render children()}
 </div>
 
 <style>
-	@import '$lib/styles/tokens.css';
-	@import '$lib/styles/base.css';
-
 	nav {
-		color: var(--color-solid-foreground);
-		background: linear-gradient(
-			in oklch,
-			var(--color-solid-background),
-			var(--color-solid-hover-background)
-		);
+		color: var(--color-fg-solid);
+		background: linear-gradient(in oklch, var(--color-bg-solid), var(--color-bg-solid-hover));
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
-		padding: var(--space-xs) var(--space-md);
+		padding: var(--size-xs) var(--size-md);
 	}
 
 	:global(body) {
 		font-family: 'Atkinson Hyperlegible', sans-serif;
-		background-color: var(--color-background);
+		background-color: var(--color-bg-app);
 		margin: 0;
 		padding: 0;
 	}
