@@ -12,6 +12,8 @@
 
 	import { SendIcon } from '@lucide/svelte';
 	import { ArkErrors } from 'arktype';
+	import { toast } from 'svelte-sonner';
+	import { goto } from '$app/navigation';
 
 	const { data } = $props();
 	const isOverlay = $derived(page.url.searchParams.has('overlay'));
@@ -70,7 +72,6 @@
 					content,
 					senderName: data.user.name,
 					senderUid: data.user.uid,
-					timestamp: Date.now(),
 					major: data.user.major
 				}
 			} satisfies typeof SocketMessageSchema.inferIn)
@@ -119,6 +120,11 @@
 
 				case 'user:banned':
 					updateUserMessages(parsed.content, (m) => (m.senderBanned = true));
+					if (data.user?.uid === parsed.content) {
+						ws?.close();
+						toast.error('Vous avez été banni du chat');
+						goto('/logout');
+					}
 					break;
 
 				case 'user:unbanned':

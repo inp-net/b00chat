@@ -12,6 +12,8 @@ import { ChurrosProfile } from '$lib/users';
 import { ArkErrors } from 'arktype';
 import { hoursToSeconds } from 'date-fns';
 import { env } from '$lib/server/env';
+import { Users } from '$lib/server/database';
+import { Logger } from '$lib/logger';
 
 export const GET: RequestHandler = async ({ url, cookies }) => {
 	const code = url.searchParams.get('code');
@@ -48,6 +50,12 @@ export const GET: RequestHandler = async ({ url, cookies }) => {
 			);
 		}
 
+		if (Users.isBanned(user.uid)) {
+			return text('Tu es banni du chat !!!', {
+				status: 403
+			});
+		}
+
 		const session = createSession(user);
 
 		cookies.set(SESSION_COOKIE, session.id, {
@@ -55,6 +63,12 @@ export const GET: RequestHandler = async ({ url, cookies }) => {
 			expires: session.validUntil,
 			maxAge: hoursToSeconds(env.SESSION_EXPIRATION_HOURS)
 		});
+
+        Logger.logEvent({
+            type: 'auth',
+            action: 'login',
+            uid: user.uid,
+        })
 	} catch (e) {
 		if (e instanceof OAuth2RequestError) {
 			if (e.code === 'invalid_grant') {

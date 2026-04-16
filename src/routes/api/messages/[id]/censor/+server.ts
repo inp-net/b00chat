@@ -1,4 +1,5 @@
-import { censorMessage, DB } from '$lib/server/database';
+import { Logger } from '$lib/logger';
+import { Messages, Users } from '$lib/server/database';
 import { broadcastMessage } from '$lib/server/socketSessions';
 import type { RequestHandler } from '../$types';
 
@@ -8,13 +9,20 @@ export const POST: RequestHandler = async ({ params, locals }) => {
 		return new Response('Unauthorized', { status: 401 });
 	}
 
-	if (!DB.User[locals.user.uid]?.moderator) {
+	if (!Users.isModerator(locals.user.uid)) {
 		return new Response('Forbidden', { status: 403 });
 	}
 
 	// Censor the message and broadcast the censorship to all clients.
-	censorMessage(id);
+	Messages.censor(id);
 	broadcastMessage({ type: 'message:censored', content: id });
+
+    Logger.logEvent({
+        type: 'moderation',
+        action: 'censor',
+        actorUid: locals.user.uid,
+        targetId: id
+    })
 
 	return new Response(null, { status: 204 });
 };

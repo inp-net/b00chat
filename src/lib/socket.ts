@@ -7,7 +7,6 @@ export const ClientCreateMessageSchema = type({
 	senderUid: 'string',
 	senderName: 'string',
 	major: MajorSchema,
-	timestamp: 'number'
 });
 
 export const ClientMessageSchema = ClientCreateMessageSchema.and({

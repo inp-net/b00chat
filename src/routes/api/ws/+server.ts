@@ -1,4 +1,4 @@
-import { DB, insertMessage, latestMessages } from '$lib/server/database';
+import { Users, Messages } from '$lib/server/database';
 import { broadcastMessage, sendMessage, socketSessions } from '$lib/server/socketSessions';
 import type { ClientMessage, SocketMessageSchema } from '$lib/socket';
 import type { Socket } from '@sveltejs/kit';
@@ -24,7 +24,7 @@ export const socket: Socket = {
 		const socketPeer = socketSessions.get(socketId);
 		socketSessions.set(socketId, { userUid: socketPeer?.userUid ?? null, peer });
 
-		const previousMessages = latestMessages(10);
+		const previousMessages = Messages.latest(10);
 		const socketPreviousMessages: ClientMessage[] = previousMessages
 			.map((msg) => ({
 				id: msg.id,
@@ -32,7 +32,6 @@ export const socket: Socket = {
 				senderName: msg.sender.name,
 				senderUid: msg.sender.uid,
 				senderBanned: msg.sender.banned,
-				timestamp: msg.sentAt.getTime(),
 				major: msg.sender.major,
 				censored: msg.censored
 			}))
@@ -53,7 +52,7 @@ export const socket: Socket = {
 
 		const socketSession = socketSessions.get(socketId ?? '');
 		// If the user is not logged in or is banned, ignore their messages.
-		const socketUser = DB.User[socketSession?.userUid ?? ''];
+		const socketUser = Users.get(socketSession?.userUid ?? '');
 		if (!socketSession || !socketUser || socketUser.banned) return;
 
 		switch (parsed.type) {
@@ -61,9 +60,8 @@ export const socket: Socket = {
 				// Broadcast the message to all connected peers
 				const { content, senderUid, senderName, major } = parsed.content;
 
-				const { id } = insertMessage({
+				const { id } = Messages.insert({
 					content: parsed.content.content.substring(0, 250),
-					sentAt: new Date(parsed.content.timestamp),
 					receivedAt: new Date(),
 					sender: parsed.content.senderUid,
 					censored: false
@@ -78,7 +76,6 @@ export const socket: Socket = {
 						senderName,
 						senderBanned: false,
 						major,
-						timestamp: parsed.content.timestamp,
 						censored: false
 					}
 				});

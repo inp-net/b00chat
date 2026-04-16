@@ -34,7 +34,7 @@
 
 	/* Inspiration: https://www.radix-ui.com/colors */
 	/* Why OKLCH? https://evilmartians.com/chronicles/oklch-in-css-why-quit-rgb-hsl */
-	--base-color: oklch(0.49 0.192 283);
+	--base-color: oklch(52.771% 0.18627 298.139);
 	--color-accent: var(--base-color);
 	--color-neutral: oklch(from var(--base-color) 0.6453 0.0165 h);
 
