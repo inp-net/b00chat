@@ -32,7 +32,6 @@ export const socket: Socket = {
 				senderName: msg.sender.name,
 				senderUid: msg.sender.uid,
 				senderBanned: msg.sender.banned,
-				timestamp: msg.sentAt.getTime(),
 				major: msg.sender.major,
 				censored: msg.censored
 			}))
@@ -63,7 +62,6 @@ export const socket: Socket = {
 
 				const { id } = Messages.insert({
 					content: parsed.content.content.substring(0, 250),
-					sentAt: new Date(parsed.content.timestamp),
 					receivedAt: new Date(),
 					sender: parsed.content.senderUid,
 					censored: false
@@ -78,7 +76,6 @@ export const socket: Socket = {
 						senderName,
 						senderBanned: false,
 						major,
-						timestamp: parsed.content.timestamp,
 						censored: false
 					}
 				});

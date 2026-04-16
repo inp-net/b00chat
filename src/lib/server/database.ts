@@ -13,7 +13,6 @@ export const Tables = {
 
 	Message: type({
 		id: ID,
-		sentAt: 'Date',
 		receivedAt: Now,
 		sender: UID,
 		content: 'string.trim',
@@ -99,7 +98,7 @@ export const Messages = {
 		// Get the last `count` messages and *then* sort them by sentAt.
 		return Object.values(DB.Message)
 			.slice(-count)
-			.sort((a, b) => compareDesc(a.sentAt, b.sentAt))
+			.sort((a, b) => compareDesc(a.receivedAt, b.receivedAt))
 			.map((message) => ({
 				...message,
 				sender: DB.User[message.sender]

@@ -72,7 +72,6 @@
 					content,
 					senderName: data.user.name,
 					senderUid: data.user.uid,
-					timestamp: Date.now(),
 					major: data.user.major
 				}
 			} satisfies typeof SocketMessageSchema.inferIn)
