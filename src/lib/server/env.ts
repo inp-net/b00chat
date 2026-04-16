@@ -18,7 +18,6 @@ export const env = arkenv({
 		.pipe((uids) => uids.split(','))
 		.default(''),
 	USER_INFO_URL: 'string.url',
-	MODERATION_DELAY_MS: 'string.integer.parse = "1000"',
 	SESSION_EXPIRATION_HOURS: 'string.integer.parse = "4"',
 	VERSION: 'string = "dev"',
 	BUILD_COMMIT: 'string = "none"'
