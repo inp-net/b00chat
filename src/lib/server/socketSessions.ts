@@ -8,9 +8,12 @@ export const sendMessage = (peer: Peer, message: typeof SocketMessageSchema.infe
 	peer.send(JSON.stringify(message));
 };
 
-export const broadcastMessage = (message: typeof SocketMessageSchema.inferOut) => {
+export const broadcastMessage = (
+	message: typeof SocketMessageSchema.inferOut,
+	filter?: (peer: Peer) => boolean
+) => {
 	for (const { peer } of socketSessions.values()) {
-		if (peer) {
+		if (peer && (!filter || filter(peer))) {
 			sendMessage(peer, message);
 		}
 	}

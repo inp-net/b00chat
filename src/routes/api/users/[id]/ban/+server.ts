@@ -1,4 +1,5 @@
-import { banUser, censorMessage, DB } from '$lib/server/database';
+import { Logger } from '$lib/logger';
+import { Users, Messages } from '$lib/server/database';
 import { broadcastMessage, socketSessions } from '$lib/server/socketSessions';
 import type { RequestHandler } from './$types';
 
@@ -9,20 +10,20 @@ export const POST: RequestHandler = async ({ params, locals }) => {
 		return new Response('Unauthorized', { status: 401 });
 	}
 
-	if (!DB.User[locals.user.uid]?.moderator) {
+	if (!Users.isModerator(locals.user.uid)) {
 		return new Response('Forbidden', { status: 403 });
 	}
 
 	// Also censor all their previous messages.
-	for (const message of Object.values(DB.Message)) {
-		if (message.sender === id && !message.censored) {
-			censorMessage(message.id);
+	for (const message of Messages.getByUser(id)) {
+		if (!message.censored) {
+			Messages.censor(message.id);
 			broadcastMessage({ type: 'message:censored', content: message.id });
 		}
 	}
 
-	banUser(id);
-    broadcastMessage({ type: 'user:banned', content: id });
+	Users.ban(id);
+	broadcastMessage({ type: 'user:banned', content: id });
 
 	// Close any active WebSocket connections for the banned user.
 	socketSessions.forEach(({ userUid, peer }) => {
@@ -30,6 +31,13 @@ export const POST: RequestHandler = async ({ params, locals }) => {
 			peer.close();
 		}
 	});
+    
+    Logger.logEvent({
+        type: 'moderation',
+        action: 'ban',
+        actorUid: locals.user.uid,
+        targetId: id
+    })
 
 	return new Response(null, { status: 204 });
 };
