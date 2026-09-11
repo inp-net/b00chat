@@ -121,10 +121,7 @@ export const socket: Socket = {
 			}
 
 			case 'game:clicker:click': {
-				// random major to test
-				const major = /* socketUser.major*/ (['sdn', 'eeea', 'mfee'] as Major[])[
-					Math.floor(Math.random() * 3)
-				];
+				const major = socketUser.major;
 				clickerState.score[major] += 1;
 				break;
 			}
