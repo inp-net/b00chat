@@ -1,11 +1,11 @@
 <script lang="ts">
-	import '$lib/styles/tokens.css';
-	import '$lib/styles/base.css';
+	import 'azucar-ui/tokens.css';
+	import 'azucar-ui/base.css';
 	import { page } from '$app/state';
 	import favicon from '$lib/assets/favicon.svg';
-	import Button from '$lib/components/Button.svelte';
 	import { LogOutIcon } from '@lucide/svelte';
 	import { Toaster } from 'svelte-sonner';
+	import { Button, Flex } from 'azucar-ui';
 
 	let { children, data } = $props();
 
@@ -20,12 +20,17 @@
 <div class="content">
 	{#if !isOverlay}
 		<nav>
-			<h1>B00chat</h1>
-			{#if connected}
-				<Button href="/logout" variant="ghost">
-					<LogOutIcon size={24} color="var(--color-fg-solid)" />
-				</Button>
-			{/if}
+			<h3>B00chat</h3>
+			<Flex>
+				{#if data.user?.moderator}
+					<Button href="/admin" variant="ghost" style="color: var(--color-fg-solid);">Admin</Button>
+				{/if}
+				{#if connected}
+					<Button href="/logout" variant="ghost">
+						<LogOutIcon size={24} color="var(--color-fg-solid)" />
+					</Button>
+				{/if}
+			</Flex>
 		</nav>
 	{/if}
 
@@ -57,5 +62,8 @@
 
 	.content {
 		height: 100dvh;
+		display: flex;
+		flex-direction: column;
+		overflow: hidden;
 	}
 </style>

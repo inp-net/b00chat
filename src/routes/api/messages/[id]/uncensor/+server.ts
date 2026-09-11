@@ -17,12 +17,12 @@ export const POST: RequestHandler = async ({ params, locals }) => {
 	Messages.uncensor(id);
 	broadcastMessage({ type: 'message:uncensored', content: id });
 
-    Logger.logEvent({
-        type: 'moderation',
-        action: 'uncensor',
-        actorUid: locals.user.uid,
-        targetId: id
-    })
+	Logger.logEvent({
+		type: 'moderation',
+		action: 'uncensor',
+		actorUid: locals.user.uid,
+		targetId: id
+	});
 
 	return new Response(null, { status: 204 });
 };

@@ -1,6 +1,6 @@
 import { ChurrosProfile, UID } from '$lib/users';
 import { type } from 'arktype';
-import { addHours, compareDesc } from 'date-fns';
+import { compareDesc } from 'date-fns';
 import { env } from './env';
 import { ID, Now } from '$lib/types';
 
@@ -17,30 +17,18 @@ export const Tables = {
 		sender: UID,
 		content: 'string.trim',
 		censored: 'boolean'
-	}),
-
-	Session: type({
-		id: ID,
-		createdAt: Now,
-		user: UID
-	}).pipe((session) => ({
-		...session,
-		validUntil: addHours(session.createdAt, env.SESSION_EXPIRATION_HOURS)
-	}))
+	})
 };
 
 export type User = typeof Tables.User.inferOut;
 export type Message = typeof Tables.Message.inferOut;
-export type Session = typeof Tables.Session.inferOut;
-
 type Database = {
 	[K in keyof typeof Tables]: Record<string, (typeof Tables)[K]['infer']>;
 };
 
 const DB: Database = {
 	User: {},
-	Message: {},
-	Session: {}
+	Message: {}
 };
 
 export const Users = {
@@ -120,33 +108,5 @@ export const Messages = {
 
 		message.censored = false;
 		return true;
-	}
-};
-
-export const Sessions = {
-	get(id: string) {
-		return DB.Session[id] ?? null;
-	},
-	set(session: typeof Tables.Session.inferIn) {
-		const newSession = Tables.Session.assert(session);
-		DB.Session[newSession.id] = newSession;
-		return newSession;
-	},
-	isValid(id: string) {
-		const session = this.get(id);
-		if (!session) return false;
-
-		return session.validUntil > new Date();
-	},
-	create(userUid: string) {
-		const session = Tables.Session.assert({
-			user: userUid
-		});
-
-		DB.Session[session.id] = session;
-		return session;
-	},
-	delete(id: string) {
-		delete DB.Session[id];
 	}
 };

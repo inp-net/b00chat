@@ -6,18 +6,20 @@ import * as dotenv from 'dotenv';
 dotenv.config();
 
 export const env = arkenv({
-	BASE_URL: 'string.url',
 	CLIENT_ID: 'string.alphanumeric',
 	CLIENT_SECRET: 'string.alphanumeric',
-	REDIRECT_URL: 'string.url',
+	BETTER_AUTH_SECRET: 'string',
+	BETTER_AUTH_URL: 'string.url',
+	BASE_URL: 'string.url',
+	ISSUER_URL: 'string.url',
+	USER_INFO_URL: 'string.url',
 	LOGOUT_URL: 'string.url',
-	BANNED_UIDS: type(/^[\w\d,]*$/)
-		.pipe((uids) => uids.split(','))
-		.default(''),
 	ADMIN_UIDS: type(/^[\w\d,]*$/)
 		.pipe((uids) => uids.split(','))
 		.default(''),
-	USER_INFO_URL: 'string.url',
+	BANNED_UIDS: type(/^[\w\d,]*$/)
+		.pipe((uids) => uids.split(','))
+		.default(''),
 	SESSION_EXPIRATION_HOURS: 'string.integer.parse = "4"',
 	VERSION: 'string = "dev"',
 	BUILD_COMMIT: 'string = "none"'

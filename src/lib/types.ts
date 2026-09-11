@@ -3,3 +3,4 @@ import { ulid } from 'ulid';
 
 export const ID = type('string').default(() => ulid());
 export const Now = type('Date').default(() => new Date());
+export const Game = type.enumerated('clicker');

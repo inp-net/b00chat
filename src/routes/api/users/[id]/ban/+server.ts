@@ -31,13 +31,13 @@ export const POST: RequestHandler = async ({ params, locals }) => {
 			peer.close();
 		}
 	});
-    
-    Logger.logEvent({
-        type: 'moderation',
-        action: 'ban',
-        actorUid: locals.user.uid,
-        targetId: id
-    })
+
+	Logger.logEvent({
+		type: 'moderation',
+		action: 'ban',
+		actorUid: locals.user.uid,
+		targetId: id
+	});
 
 	return new Response(null, { status: 204 });
 };

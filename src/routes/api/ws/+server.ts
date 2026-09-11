@@ -1,7 +1,19 @@
 import { Users, Messages } from '$lib/server/database';
 import { broadcastMessage, sendMessage, socketSessions } from '$lib/server/socketSessions';
 import type { ClientMessage, SocketMessageSchema } from '$lib/socket';
+import type { Game } from '$lib/types';
+import type { Major } from '$lib/users';
 import type { Socket } from '@sveltejs/kit';
+
+let currentGame: typeof Game.inferIn | null = null;
+const clickerState: { interval: NodeJS.Timeout | null; score: Record<Major, number> } = {
+	interval: null,
+	score: {
+		sdn: 0,
+		eeea: 0,
+		mfee: 0
+	}
+};
 
 export const socket: Socket = {
 	upgrade(event) {
@@ -38,6 +50,10 @@ export const socket: Socket = {
 			.reverse();
 
 		sendMessage(peer, { type: 'message:created:batch', content: socketPreviousMessages });
+
+		if (currentGame) {
+			sendMessage(peer, { type: 'game:start', content: currentGame });
+		}
 	},
 	close(peer) {
 		const socketId = peer.request.headers.get('sec-websocket-key');
@@ -58,12 +74,11 @@ export const socket: Socket = {
 		switch (parsed.type) {
 			case 'message:create': {
 				// Broadcast the message to all connected peers
-				const { content, senderUid, senderName, major } = parsed.content;
 
-				const { id } = Messages.insert({
-					content: parsed.content.content.substring(0, 250),
+				const { id, content } = Messages.insert({
+					content: parsed.content.substring(0, 250),
 					receivedAt: new Date(),
-					sender: parsed.content.senderUid,
+					sender: socketUser.uid,
 					censored: false
 				});
 
@@ -71,14 +86,69 @@ export const socket: Socket = {
 					type: 'message:created',
 					content: {
 						id,
-						content,
-						senderUid,
-						senderName,
+						content: content,
+						senderUid: socketUser.uid,
+						senderName: socketUser.name,
 						senderBanned: false,
-						major,
+						major: socketUser.major,
 						censored: false
 					}
 				});
+				break;
+			}
+
+			case 'game:start': {
+				if (!socketUser.moderator) return;
+				const game = parsed.content;
+				currentGame = game;
+				broadcastMessage({
+					type: 'game:start',
+					content: game
+				});
+
+				switch (game) {
+					case 'clicker':
+						if (clickerState.interval) clearInterval(clickerState.interval);
+						clickerState.interval = setInterval(() => {
+							broadcastMessage({
+								type: 'game:clicker:score',
+								content: clickerState.score
+							});
+						}, 1000);
+						break;
+				}
+				break;
+			}
+
+			case 'game:clicker:click': {
+				// random major to test
+				const major = /* socketUser.major*/ (['sdn', 'eeea', 'mfee'] as Major[])[
+					Math.floor(Math.random() * 3)
+				];
+				clickerState.score[major] += 1;
+				break;
+			}
+
+			case 'game:end': {
+				const game = parsed.content;
+				currentGame = null;
+				if (!socketUser.moderator) return;
+				broadcastMessage({
+					type: 'game:end',
+					content: game
+				});
+
+				switch (game) {
+					case 'clicker':
+						if (clickerState.interval) clearInterval(clickerState.interval);
+						clickerState.interval = null;
+						clickerState.score = {
+							sdn: 0,
+							eeea: 0,
+							mfee: 0
+						};
+						break;
+				}
 				break;
 			}
 		}

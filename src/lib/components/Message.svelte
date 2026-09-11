@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { TrashIcon, ShieldBanIcon, ShieldOffIcon, UndoIcon } from '@lucide/svelte';
-	import Button from './Button.svelte';
+	import { Button } from 'azucar-ui';
 	import Sender from './Sender.svelte';
 	import { banUser, censorMessage, unbanUser, uncensorMessage } from '$lib/client';
 
@@ -43,9 +43,23 @@
 <style>
 	.message {
 		display: flex;
-		height: var(--size-lg);
+		width: 100%;
+		min-width: 0;
+		min-height: var(--size-lg);
+		flex-shrink: 0;
 		align-items: center;
 		gap: var(--size-sm);
+	}
+
+	.message > span {
+		display: block;
+		min-width: 0;
+		flex: 1;
+	}
+
+	.controls {
+		display: flex;
+		flex-shrink: 0;
 	}
 
 	.message:hover {
@@ -55,7 +69,7 @@
 	.content {
 		color: var(--color-fg-high);
 		white-space: pre-wrap;
-		word-wrap: break-word;
+		overflow-wrap: anywhere;
 	}
 
 	.censored {

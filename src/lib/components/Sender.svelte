@@ -2,14 +2,13 @@
 	export type SenderProps = {
 		senderName: string;
 		senderColor?: string;
-		senderBanned?: boolean;
 	};
 </script>
 
 <script lang="ts">
 	const maxSenderNameLength = 25;
 
-	let { senderName, senderColor, senderBanned }: SenderProps = $props();
+	let { senderName, senderColor }: SenderProps = $props();
 </script>
 
 <span class="sender-name" style="color: {senderColor}">

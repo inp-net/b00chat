@@ -1,5 +1,3 @@
-// place files you want to import through the `$lib` alias in this folder.
-
 import { type } from 'arktype';
 
 export const MajorSchema = type.enumerated('sdn', 'eeea', 'mfee');
@@ -22,3 +20,5 @@ export const ChurrosProfile = type({
 }));
 
 export type Major = typeof MajorSchema.infer;
+
+export const Majors: Major[] = ['sdn', 'eeea', 'mfee'];

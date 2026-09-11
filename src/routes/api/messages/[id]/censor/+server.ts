@@ -17,12 +17,12 @@ export const POST: RequestHandler = async ({ params, locals }) => {
 	Messages.censor(id);
 	broadcastMessage({ type: 'message:censored', content: id });
 
-    Logger.logEvent({
-        type: 'moderation',
-        action: 'censor',
-        actorUid: locals.user.uid,
-        targetId: id
-    })
+	Logger.logEvent({
+		type: 'moderation',
+		action: 'censor',
+		actorUid: locals.user.uid,
+		targetId: id
+	});
 
 	return new Response(null, { status: 204 });
 };

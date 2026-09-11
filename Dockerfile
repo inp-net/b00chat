@@ -12,12 +12,14 @@ RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --prod --frozen-l
 FROM base AS build
 COPY . /app
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
-ENV BASE_URL=https://auth.inpt.fr
 ENV CLIENT_ID=invalid
 ENV CLIENT_SECRET=invalid
-ENV REDIRECT_URL=http://localhost:3000/auth/callback
-ENV LOGOUT_URL=https://auth.inpt.fr/application/o/b00chat/end-session/
+ENV BETTER_AUTH_SECRET=invalid
+ENV BETTER_AUTH_URL=https://auth.inpt.fr
+ENV BASE_URL=http://localhost:3000
+ENV ISSUER_URL=https://auth.inpt.fr/application/o
 ENV USER_INFO_URL=https://auth.inpt.fr/application/o/user-info/
+ENV LOGOUT_URL=https://auth.inpt.fr/application/o/b00chat/end-session/
 RUN pnpm run build
 
 FROM base

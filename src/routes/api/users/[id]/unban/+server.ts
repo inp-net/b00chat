@@ -25,12 +25,12 @@ export const POST: RequestHandler = async ({ params, locals }) => {
 	Users.unban(id);
 	broadcastMessage({ type: 'user:unbanned', content: id });
 
-    Logger.logEvent({
-        type: 'moderation',
-        action: 'unban',
-        actorUid: locals.user.uid,
-        targetId: id
-    })
+	Logger.logEvent({
+		type: 'moderation',
+		action: 'unban',
+		actorUid: locals.user.uid,
+		targetId: id
+	});
 
 	return new Response(null, { status: 204 });
 };

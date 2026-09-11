@@ -1,4 +1,7 @@
+import { createAuthClient } from 'better-auth/client';
 import { toast } from 'svelte-sonner';
+
+export const authClient = createAuthClient();
 
 export const censorMessage = async (messageId: string) => {
 	const response = await fetch(`/api/messages/${messageId}/censor`, {

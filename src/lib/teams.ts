@@ -1,7 +1,7 @@
-import type { User } from './server/database';
+import type { Major } from './users';
 
-export function teamColor(user: Pick<User, 'major'>): `#${string}` {
-	switch (user.major) {
+export function teamColor(major: Major): `#${string}` {
+	switch (major) {
 		case 'sdn':
 			return '#de3839';
 		case 'eeea':

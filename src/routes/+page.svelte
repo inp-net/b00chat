@@ -1,10 +1,12 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import { onMount, onDestroy } from 'svelte';
+	import { onMount, onDestroy, tick } from 'svelte';
+	import { Game } from '$lib/types';
 
-	import Button from '$lib/components/Button.svelte';
+	import { Button, Frame } from 'azucar-ui';
 	import ChatInput from '$lib/components/ChatInput.svelte';
 	import Message from '$lib/components/Message.svelte';
+	import Clicker from '$lib/components/minigames/Clicker.svelte';
 
 	import { SocketMessageSchema } from '$lib/socket';
 	import { teamColor } from '$lib/teams';
@@ -29,10 +31,20 @@
 	};
 
 	const messages = $state<ChatMessage[]>([]);
-	const minigame = $state(false);
+
+	/*----------------------------- minigames --------------------------- */
+	let minigame = $state<typeof Game.inferIn | null>(null);
+	let scores = $state<Record<Major, number>>({ eeea: 0, mfee: 0, sdn: 0 });
+	let winner = $state<Major | null>(null);
 
 	let ws: WebSocket | null = $state(null);
 	let chatInput: string = $state('');
+	let messagesContainer: HTMLDivElement;
+
+	async function keepMessageScrollAtBottom() {
+		await tick();
+		if (messagesContainer) messagesContainer.scrollTop = 0;
+	}
 
 	/* ----------------------------- helpers ----------------------------- */
 
@@ -47,7 +59,7 @@
 	}): ChatMessage {
 		return {
 			...msg,
-			senderColor: teamColor({ major: msg.major })
+			senderColor: teamColor(msg.major)
 		};
 	}
 
@@ -68,13 +80,18 @@
 		ws.send(
 			JSON.stringify({
 				type: 'message:create',
-				content: {
-					content,
-					senderName: data.user.name,
-					senderUid: data.user.uid,
-					major: data.user.major
-				}
-			} satisfies typeof SocketMessageSchema.inferIn)
+				content
+			})
+		);
+	}
+
+	function sendClick() {
+		if (!data.user || !ws || ws.readyState !== WebSocket.OPEN) return;
+
+		ws.send(
+			JSON.stringify({
+				type: 'game:clicker:click'
+			})
 		);
 	}
 
@@ -104,10 +121,12 @@
 			switch (parsed.type) {
 				case 'message:created':
 					messages.unshift(withColor(parsed.content));
+					keepMessageScrollAtBottom();
 					break;
 
 				case 'message:created:batch':
 					parsed.content.map(withColor).forEach((m) => messages.unshift(m));
+					keepMessageScrollAtBottom();
 					break;
 
 				case 'message:censored':
@@ -123,12 +142,32 @@
 					if (data.user?.uid === parsed.content) {
 						ws?.close();
 						toast.error('Vous avez été banni du chat');
+						// eslint-disable-next-line svelte/no-navigation-without-resolve
 						goto('/logout');
 					}
 					break;
 
 				case 'user:unbanned':
 					updateUserMessages(parsed.content, (m) => (m.senderBanned = false));
+					break;
+
+				case 'game:start':
+					minigame = parsed.content;
+					winner = null;
+					scores = { eeea: 0, mfee: 0, sdn: 0 };
+					break;
+
+				case 'game:end':
+					winner = Object.entries(scores).reduce((a, b) => (b[1] > a[1] ? b : a))[0] as Major;
+					setTimeout(() => {
+						minigame = null;
+						winner = null;
+						scores = { eeea: 0, mfee: 0, sdn: 0 };
+					}, 5000);
+					break;
+
+				case 'game:clicker:score':
+					scores = parsed.content as Record<Major, number>;
 					break;
 			}
 		};
@@ -142,12 +181,18 @@
 <div class="main" class:is-overlay={isOverlay}>
 	{#if minigame}
 		<div class="minigame">
-			<div class="minigame-container"></div>
+			<div class="minigame-container">
+				<Frame border shadow transparent>
+					{#if minigame === 'clicker'}
+						<Clicker major={data.user?.major} {scores} {winner} onClick={sendClick} {isOverlay} />
+					{/if}
+				</Frame>
+			</div>
 		</div>
 	{/if}
 
-	<div class="messages" class:is-overlay={isOverlay}>
-		{#each messages as message}
+	<div bind:this={messagesContainer} class="messages" class:is-overlay={isOverlay}>
+		{#each messages as message (message.id)}
 			<Message {...message} showControls={!isOverlay && data.user?.moderator} />
 		{/each}
 	</div>
@@ -161,16 +206,14 @@
 						bind:value={chatInput}
 						sender={{
 							senderName: data.user.name,
-							senderColor: teamColor(data.user)
+							senderColor: teamColor(data.user.major)
 						}}
 						onkeypress={(e) => e.key === 'Enter' && submitInput()}
 						placeholder="Taper votre message..."
 						autofocus
 					/>
 
-					<Button onclick={submitInput}>
-						<SendIcon />
-					</Button>
+					<Button onclick={submitInput} icon={SendIcon} />
 				{:else}
 					<Button href="/login">Se connecter</Button>
 				{/if}
@@ -182,6 +225,11 @@
 <style>
 	.main {
 		display: flex;
+		position: relative;
+		flex: 1;
+		min-height: 0;
+		width: 100%;
+		flex-direction: column;
 		justify-content: center;
 		align-items: center;
 	}
@@ -193,20 +241,18 @@
 		position: absolute;
 		top: 10dvh;
 		width: 100%;
+		z-index: 10;
 	}
 
 	.minigame-container {
 		height: 40dvh;
-		margin: var(--size-xs);
-		border-radius: var(--corner-radius);
-		background-color: color-mix(in oklch, var(--color-bg-solid), transparent 20%);
-		border: 2px solid var(--color-border);
+		margin: var(--size-xxl);
 	}
 
 	.footer {
-		position: absolute;
 		width: 100%;
-		bottom: 2dvh;
+		flex-shrink: 0;
+		padding-bottom: 2dvh;
 	}
 
 	.chat-input-container {
@@ -218,7 +264,9 @@
 
 	.messages {
 		width: 100%;
-		max-height: 85dvh;
+		flex: 1;
+		min-width: 0;
+		min-height: 0;
 		margin: var(--size-md);
 		display: flex;
 		flex-direction: column-reverse;
@@ -226,7 +274,6 @@
 	}
 
 	.messages.is-overlay {
-		max-height: 100dvh;
 		overflow-y: hidden;
 		height: 100%;
 	}
