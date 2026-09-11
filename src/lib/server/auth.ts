@@ -85,7 +85,12 @@ export const auth = betterAuth({
 				}
 			]
 		})
-	]
+	],
+	experimental: {
+		instrumentation: {
+			enabled: false
+		}
+	}
 });
 
 export function syncApplicationUser(user: unknown): User | undefined {
