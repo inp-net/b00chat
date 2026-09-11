@@ -23,13 +23,15 @@
 			</div>
 		{/each}
 	</div>
-{:else}
+{:else if major}
 	<Button
 		onclick={onClick}
 		disabled={winner != null}
-		style="width: 100%; height: 100px; background-color: {major ? teamColor(major) : 'lightgray'};"
+		style="width: 100%; height: 100px; background-color: {teamColor(major)};"
 		>CLIQUE POUR TA FILIÈRE</Button
 	>
+{:else}
+	<p>Connectez-vous pour jouer !</p>
 {/if}
 
 <style>
