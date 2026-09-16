@@ -1,7 +1,7 @@
 import { Users, Messages } from '$lib/server/database';
 import { broadcastMessage, sendMessage, socketSessions } from '$lib/server/socketSessions';
 import type { ClientMessage, SocketMessageSchema } from '$lib/socket';
-import type { Game } from '$lib/types';
+import type { Game, QuizQuestion } from '$lib/types';
 import type { Major } from '$lib/users';
 import type { Socket } from '@sveltejs/kit';
 
@@ -14,6 +14,29 @@ const clickerState: { interval: NodeJS.Timeout | null; score: Record<Major, numb
 		mfee: 0
 	}
 };
+
+const quizState: {
+	interval: NodeJS.Timeout | null;
+	answering: boolean;
+	question: typeof QuizQuestion.inferIn | null;
+	answersCounts: Array<number>;
+} = {
+	interval: null,
+	answering: false,
+	question: null,
+	answersCounts: []
+};
+
+function getNextQuizQuestion(): typeof QuizQuestion.inferIn {
+	// For demonstration purposes, we will return a static question.
+	// In a real application, you would fetch questions from a database or an API.
+	const sampleQuestion: typeof QuizQuestion.inferIn = {
+		question: 'What is the capital of France?',
+		answers: ['Berlin', 'Madrid', 'Paris', 'Rome'],
+		correctAnswerIndex: 2
+	};
+	return sampleQuestion;
+}
 
 export const socket: Socket = {
 	upgrade(event) {
@@ -116,13 +139,45 @@ export const socket: Socket = {
 							});
 						}, 1000);
 						break;
+					case 'quiz':
+						// every 15 seconds send a new question to all players
+						quizState.interval = setInterval(() => {
+							quizState.question = getNextQuizQuestion();
+							quizState.answersCounts = Array(quizState.question.answers.length).fill(0);
+							quizState.answering = true;
+							broadcastMessage({
+								type: 'game:quiz:question',
+								content: quizState.question
+							});
+							// after 10 seconds, send the correct answer to all players
+							setTimeout(() => {
+								if (quizState.question) {
+									quizState.answering = false;
+									broadcastMessage({
+										type: 'game:quiz:correct',
+										content: quizState.question.correctAnswerIndex
+									});
+								}
+							}, 10000);
+						}, 15000);
+
+						break;
 				}
 				break;
 			}
 
 			case 'game:clicker:click': {
+				if (!currentGame || currentGame !== 'clicker') return;
 				const major = socketUser.major;
 				clickerState.score[major] += 1;
+				break;
+			}
+
+			case 'game:quiz:answer': {
+				if (!currentGame || currentGame !== 'quiz') return;
+				if (!quizState.answering) return;
+				const answer = parsed.content;
+				quizState.answersCounts[answer] += 1;
 				break;
 			}
 
@@ -144,6 +199,11 @@ export const socket: Socket = {
 							eeea: 0,
 							mfee: 0
 						};
+						break;
+
+					case 'quiz':
+						quizState.question = null;
+						quizState.answersCounts = [];
 						break;
 				}
 				break;

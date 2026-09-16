@@ -35,7 +35,6 @@
 	}
 </script>
 
-1
 <Flex direction="column" align="center" justify="center">
 	<h2>Admin</h2>
 
