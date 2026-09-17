@@ -4,7 +4,7 @@ import type { ClientMessage, SocketMessageSchema } from '$lib/socket';
 import type { Game, QuizQuestion, QuizQuestionData } from '$lib/types';
 import { type Major, Majors } from '$lib/users';
 import type { Socket } from '@sveltejs/kit';
-import fs from 'fs';
+import questions from '$lib/assets/questions.json';
 
 let currentGame: typeof Game.inferIn | null = null;
 const clickerState: { interval: NodeJS.Timeout | null; score: Map<Major, number> } = {
@@ -38,7 +38,7 @@ const quizState: {
 let questionIndex = 0;
 function getNextQuizQuestion(): typeof QuizQuestion.inferIn {
     // read the file in static/assets/questions.json and parse it as JSON
-    const questionsFromFile = JSON.parse(fs.readFileSync('static/assets/questions.json', 'utf-8')) as typeof QuizQuestion.inferIn[];
+    const questionsFromFile = questions;
     const question = questionsFromFile[questionIndex % questionsFromFile.length];
     questionIndex++;
 
