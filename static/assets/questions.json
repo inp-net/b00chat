@@ -1,0 +1,156 @@
+[
+    {
+        "question": "Il est où le WEI ?",
+        "img": "",
+        "answers": [
+            "Souillac",
+            "Figeac",
+            "Pauillac",
+            "Cognac"
+        ],
+        "correctAnswerIndex": 2
+    },
+    {
+        "question": "Quelle est la meilleure asso technique ?",
+        "img": "",
+        "answers": [
+            "Net7",
+            "TVn7",
+            "Can7",
+            "Photo7"
+        ],
+        "correctAnswerIndex": 0
+    },
+    {
+        "question": "Quelle liste n'a jamais existé ?",
+        "img": "",
+        "answers": [
+            "Hi7Haut",
+            "URS7",
+            "Venez comme vous 7",
+            "Macron Démi7ion"
+        ],
+        "correctAnswerIndex": 3
+    },
+    {
+        "question": "Maximum de tours d'auto-laveuses après une soirée Foy ?",
+        "img": "",
+        "answers": [
+            "14",
+            "27",
+            "6",
+            "11"
+        ],
+        "correctAnswerIndex": 1
+    },
+    {
+        "question": "Combien de litres d'alcool pour le WEI ?",
+        "img": "",
+        "answers": [
+            "530L",
+            "1730L",
+            "1200L",
+            "980L"
+        ],
+        "correctAnswerIndex": 1
+    },
+    {
+        "question": "Que veut dire le 2ème E dans ENSEEIHT ?",
+        "img": "",
+        "answers": [
+            "Electrique",
+            "Electrotechnique",
+            "Electrolyte",
+            "Electrosorcier"
+        ],
+        "correctAnswerIndex": 1
+    },
+    {
+        "question": "Que veut dire ශ්‍රී ජයවර්ධනපුර කෝට්ටේ ஶ்ரீ ஜெயவர்த்தனபுர கோட்டை ?",
+        "img": "",
+        "answers": [
+            "Tête indou à barbe rousse",
+            "Sourcil droit de Francis Bony",
+            "Sri Jayawardenepura Kotte",
+            "eh vasy lui je parle pas cette langue"
+        ],
+        "correctAnswerIndex": 2
+    },
+    {
+        "question": "Laquelle de ces villes a une latitude de 67° nord ?",
+        "img": "https://cloud.inpt.fr/core/preview?fileId=712864&x=1920&y=1080",
+        "answers": [
+            "Bodo en Norvège",
+            "Reykjavik en Islande",
+            "Helsinki en Finlande",
+            "Uppsala en Suède"
+        ],
+        "correctAnswerIndex": 0
+    },
+    {
+        "question": "Quelle est la filière qui travaille le moins ?",
+        "img": "",
+        "answers": [
+            "3EA",
+            "SN",
+            "AMA",
+            "MF2E"
+        ],
+        "correctAnswerIndex": 3
+    },
+    {
+        "question": "Il y avait combien de filières il y a 5 ans ?",
+        "img": "",
+        "answers": [
+            "2",
+            "5",
+            "7",
+            "1"
+        ],
+        "correctAnswerIndex": 0
+    },
+    {
+        "question": "Où sont ces toilettes ?",
+        "img": "https://cloud.inpt.fr/apps/files_sharing/publicpreview/6C99tdS4raE4ZQt?file=/&fileId=712865&x=1920&y=1080",
+        "answers": [
+            "Administration",
+            "Tour Radio",
+            "Foyer",
+            "Bâtiment G"
+        ],
+        "correctAnswerIndex": 1
+    },
+    {
+        "question": "D'où viennent les salopettes du rouge du Foy ?",
+        "img": "",
+        "answers": [
+            "Les pompiers",
+            "Les communistes",
+            "La fanfare",
+            "L'incident…"
+        ],
+        "correctAnswerIndex": 2
+    },
+    {
+        "question": "Quel artiste a tourné un clip dans le B00 ?",
+        "img": "",
+        "answers": [
+            "Bigflo & Oli",
+            "Jain",
+            "Kaaris",
+            "Pomme"
+        ],
+        "correctAnswerIndex": 0
+    },
+    {
+        "question": "Quelle asso a oublié de payer la TVA ?",
+        "img": "",
+        "answers": [
+            "Can7",
+            "TVN7",
+            "N7RT",
+            "N7Consulting"
+        ],
+        "correctAnswerIndex": 3
+    }
+]

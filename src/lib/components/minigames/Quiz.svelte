@@ -31,21 +31,21 @@
 			<p>{winner}</p>
 		{:else if question}
 			{#if question.img}
-				<img src={question.img} alt="Question" />
+				<img
+					style="max-width: 100%; max-height: 300px; object-fit: contain;"
+					src={question.img}
+					alt="Question"
+				/>
 			{/if}
 			<h2 class="title">{question.question}</h2>
 			{#if answerIndex !== undefined}
-				<Button
-					style={`width: 100%; height: 200px; font-size: 2rem; --base-color: ${answerColors[answerIndex]};`}
-				>
+				<Button style={`width: 100%; height: 200px; --base-color: ${answerColors[answerIndex]};`}>
 					{question.answers[answerIndex]}
 				</Button>
 			{:else}
 				<Flex style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px;">
 					{#each question.answers as answer, i (answer)}
-						<Button
-							style={`width: 100%; height: 100px; font-size: 2rem; --base-color: ${answerColors[i]};`}
-						>
+						<Button style={`width: 100%; height: 100px; --base-color: ${answerColors[i]};`}>
 							{answer}
 						</Button>
 					{/each}
@@ -58,7 +58,7 @@
 			{#if answerIndex !== undefined}
 				<Button
 					icon={answerIcons[answerIndex]}
-					style={`width: 100%; height: 200px; font-size: 2rem; --base-color: ${answerColors[answerIndex]}; pointer-events: none;`}
+					style={`width: 100%; height: 200px; --base-color: ${answerColors[answerIndex]}; pointer-events: none;`}
 				/>
 			{:else if !answered}
 				<Flex style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px;">
@@ -69,7 +69,7 @@
 								answered = true;
 							}}
 							icon={answerIcons[i]}
-							style={`width: 100%; height: 100px; font-size: 2rem; --base-color: ${answerColors[i]};`}
+							style={`width: 100%; height: 100px; --base-color: ${answerColors[i]};`}
 						/>
 					{/each}
 				</Flex>
