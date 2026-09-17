@@ -2,15 +2,15 @@
 
 ## Overlay OBS
 
-1. Aller sur `/?overlay`
+1. Aller sur `https://b00.inpt.fr/?overlay`
 2. Mettre ça en CSS personnalisé:
 
 ```css
-body {
-	background: linear-gradient(to top, rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0)) !important;
+html, body {
+	background: transparent !important;
 	margin: 30px !important;
 	overflow: hidden;
-	font-size: 48px !important;
+	font-size: 24px !important;
 	color-scheme: dark !important;
 }
 ```
