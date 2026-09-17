@@ -35,11 +35,17 @@
 
 	/*----------------------------- minigames --------------------------- */
 	let minigame = $state<typeof Game.inferIn | null>(null);
-	let scores = $state<Record<Major, number>>({ eeea: 0, mfee: 0, sdn: 0 });
+	let scores = $state<Map<Major, number>>(
+		new Map<Major, number>([
+			['eeea', 0],
+			['mfee', 0],
+			['sdn', 0]
+		])
+	);
 	let winner = $state<Major | null>(null);
 	let question = $state<typeof QuizQuestionData.inferIn | undefined>(undefined);
 	let answer = $state<number | undefined>(undefined);
- 
+
 	let ws: WebSocket | null = $state(null);
 	let chatInput: string = $state('');
 	let messagesContainer: HTMLDivElement;
@@ -125,6 +131,7 @@
 		ws = new WebSocket('/api/ws');
 
 		ws.onmessage = (event) => {
+			console.log('WS message received:', JSON.parse(event.data));
 			const parsed = SocketMessageSchema(JSON.parse(event.data));
 
 			if (parsed instanceof ArkErrors) {
@@ -168,7 +175,11 @@
 				case 'game:start':
 					minigame = parsed.content;
 					winner = null;
-					scores = { eeea: 0, mfee: 0, sdn: 0 };
+					scores = new Map<Major, number>([
+						['eeea', 0],
+						['mfee', 0],
+						['sdn', 0]
+					]);
 					break;
 
 				case 'game:end':
@@ -176,19 +187,24 @@
 					setTimeout(() => {
 						minigame = null;
 						winner = null;
-						scores = { eeea: 0, mfee: 0, sdn: 0 };
+						scores = new Map<Major, number>([
+							['eeea', 0],
+							['mfee', 0],
+							['sdn', 0]
+						]);
 					}, 5000);
 					break;
 
 				case 'game:clicker:score':
-					scores = parsed.content as Record<Major, number>;
+					scores = new Map(parsed.content) as Map<Major, number>;
 					break;
 				case 'game:quiz:question':
 					question = parsed.content as typeof QuizQuestionData.inferIn;
 					answer = undefined;
 					break;
-				case "game:quiz:correct":
-					answer = parsed.content as number;
+				case 'game:quiz:correct':
+					answer = parsed.content.answer as number;
+					scores = new Map(parsed.content.scores) as Map<Major, number>;
 					break;
 			}
 		};
@@ -208,7 +224,14 @@
 						<Clicker major={data.user?.major} {scores} {winner} onClick={sendClick} {isOverlay} />
 					{/if}
 					{#if minigame === 'quiz'}
-						<Quiz {question} answerIndex={answer} {scores} {winner} onClick={sendAnswer} {isOverlay} />
+						<Quiz
+							{question}
+							answerIndex={answer}
+							{scores}
+							{winner}
+							onClick={sendAnswer}
+							{isOverlay}
+						/>
 					{/if}
 				</Frame>
 			</div>

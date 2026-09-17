@@ -1,6 +1,6 @@
 import { type } from 'arktype';
 import { MajorSchema } from './users';
-import { Game, ID, QuizQuestion, QuizQuestionData } from './types';
+import { Game, ID, QuizQuestionData } from './types';
 
 export const ClientCreateMessageSchema = type({
 	content: 'string.trim',
@@ -15,6 +15,8 @@ export const ClientMessageSchema = ClientCreateMessageSchema.and({
 	senderBanned: 'boolean'
 });
 
+const StringNumberTuple = type(['string', 'number']); 
+
 export type ClientMessage = typeof ClientMessageSchema.inferOut;
 
 export const SocketMessageSchema = type.or(
@@ -28,8 +30,11 @@ export const SocketMessageSchema = type.or(
 	{ type: '"game:start"', content: Game },
 	{ type: '"game:end"', content: Game },
 	{ type: '"game:clicker:click"', content: 'null' },
-	{ type: '"game:clicker:score"', content: 'Record<string, number>' },
+	{ type: '"game:clicker:score"', content: StringNumberTuple.array() },
 	{ type: '"game:quiz:question"', content: QuizQuestionData },
 	{ type: '"game:quiz:answer"', content: 'number' },
-	{ type: '"game:quiz:correct"', content: 'number' }
+	{ type: '"game:quiz:correct"', content: type({
+      answer: 'number',
+      scores: StringNumberTuple.array()
+    }) }
 );

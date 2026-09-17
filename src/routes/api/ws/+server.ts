@@ -2,35 +2,35 @@ import { Users, Messages } from '$lib/server/database';
 import { broadcastMessage, sendMessage, socketSessions } from '$lib/server/socketSessions';
 import type { ClientMessage, SocketMessageSchema } from '$lib/socket';
 import type { Game, QuizQuestion, QuizQuestionData } from '$lib/types';
-import type { Major } from '$lib/users';
+import { type Major, Majors } from '$lib/users';
 import type { Socket } from '@sveltejs/kit';
 
 let currentGame: typeof Game.inferIn | null = null;
-const clickerState: { interval: NodeJS.Timeout | null; score: Record<Major, number> } = {
+const clickerState: { interval: NodeJS.Timeout | null; score: Map<Major, number> } = {
 	interval: null,
-	score: {
-		sdn: 0,
-		eeea: 0,
-		mfee: 0
-	}
+	score: new Map<Major, number>([
+		["sdn", 0],
+		["eeea", 0],
+		["mfee", 0]
+	])
 };
 
 const quizState: {
 	interval: NodeJS.Timeout | null;
 	answering: boolean;
 	question: typeof QuizQuestionData.inferIn | null;
-	answersCounts: Array<Record<Major, number>>;
-	score: Record<Major, number>;
+	answersCounts: Array<Map<Major, number>>;
+	score: Map<Major, number>;
 } = {
 	interval: null,
 	answering: false,
 	question: null,
 	answersCounts: [],
-	score: {
-		sdn: 0,
-		eeea: 0,
-		mfee: 0
-	}
+	score: new Map<Major, number>([
+		["sdn", 0],
+		["eeea", 0],
+		["mfee", 0]
+	])
 };
 
 function getNextQuizQuestion(): typeof QuizQuestion.inferIn {
@@ -38,8 +38,8 @@ function getNextQuizQuestion(): typeof QuizQuestion.inferIn {
 	// In a real application, you would fetch questions from a database or an API.
 	const sampleQuestion: typeof QuizQuestion.inferIn = {
 		question: 'What is the capital of France?',
-		answers: ['Berlin', 'Madrid', 'Paris', 'Rome'],
-		correctAnswerIndex: 2
+		answers: ['Berlin', 'Madrid'],
+		correctAnswerIndex: 1
 	};
 	return sampleQuestion;
 }
@@ -141,31 +141,56 @@ export const socket: Socket = {
 						clickerState.interval = setInterval(() => {
 							broadcastMessage({
 								type: 'game:clicker:score',
-								content: clickerState.score
+								content: Array.from(clickerState.score.entries())
 							});
 						}, 1000);
 						break;
 					case 'quiz':
+                        quizState.score = new Map<Major, number>([
+                            ["sdn", 0],
+                            ["eeea", 0],
+                            ["mfee", 0]
+                        ]);
 						// every 15 seconds send a new question to all players
 						quizState.interval = setInterval(() => {
-							let question = getNextQuizQuestion();
+							const question = getNextQuizQuestion();
 							quizState.question = question;
-							quizState.answersCounts = Array(quizState.question.answers.length).fill(0);
+							quizState.answersCounts = Array(question.answers.length).fill(null).map(() => new Map<Major, number>([
+								["sdn", 0],
+								["eeea", 0],
+								["mfee", 0]
+							]));
+
+							console.log(quizState.answersCounts);
+                        
 							quizState.answering = true;
 							broadcastMessage({
 								type: 'game:quiz:question',
 								content: quizState.question
 							});
-							console.log('New quiz question sent:', question);
 							// after 10 seconds, send the correct answer to all players
 							setTimeout(() => {
 								if (quizState.question) {
 									quizState.answering = false;
+
+									const correctAnswer = question.correctAnswerIndex;
+
+									for (const major of Majors) {
+										const total = quizState.answersCounts.reduce((a, b) => a + (b.get(major) ?? 0), 0);
+										const current = quizState.score.get(major) ?? 0;
+										const correctCount = quizState.answersCounts[correctAnswer].get(major) ?? 0;
+										quizState.score.set(major, current + (total === 0 ? 0 : correctCount / total));
+									}
+
+                                    console.log('Quiz scores:', Array.from(quizState.score.entries()));
+
 									broadcastMessage({
 										type: 'game:quiz:correct',
-										content: question.correctAnswerIndex
+										content: {
+											answer : question.correctAnswerIndex,
+											scores: Array.from(quizState.score.entries())
+										}
 									});
-									console.log('Correct answer sent:', question.correctAnswerIndex);
 								}
 							}, 10000);
 						}, 15000);
@@ -178,7 +203,7 @@ export const socket: Socket = {
 			case 'game:clicker:click': {
 				if (!currentGame || currentGame !== 'clicker') return;
 				const major = socketUser.major;
-				clickerState.score[major] += 1;
+				clickerState.score.set(major, (clickerState.score.get(major) ?? 0) + 1);
 				break;
 			}
 
@@ -186,8 +211,10 @@ export const socket: Socket = {
 				if (!currentGame || currentGame !== 'quiz') return;
 				if (!quizState.answering) return;
 				const answer = parsed.content;
-				quizState.answersCounts[answer][socketUser.major]+= 1;
-				console.log(quizState.answersCounts);
+                console.log('Received answer:', answer, 'from user:', socketUser.uid, 'major:', socketUser.major);
+				const answerCounts = quizState.answersCounts[answer];
+				if (!answerCounts) return;
+				answerCounts.set(socketUser.major, (answerCounts.get(socketUser.major) ?? 0) + 1);
 				break;
 			}
 
@@ -204,11 +231,11 @@ export const socket: Socket = {
 					case 'clicker':
 						if (clickerState.interval) clearInterval(clickerState.interval);
 						clickerState.interval = null;
-						clickerState.score = {
-							sdn: 0,
-							eeea: 0,
-							mfee: 0
-						};
+						clickerState.score = new Map<Major, number>([
+							["sdn", 0],
+							["eeea", 0],
+							["mfee", 0]
+						]);
 						break;
 
 					case 'quiz':
@@ -217,6 +244,11 @@ export const socket: Socket = {
 						quizState.answering = false;
 						quizState.question = null;
 						quizState.answersCounts = [];
+						quizState.score = new Map<Major, number>([
+							["sdn", 0],
+							["eeea", 0],
+							["mfee", 0]
+						]);
 						break;
 				}
 				break;
