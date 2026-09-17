@@ -161,8 +161,6 @@ export const socket: Socket = {
 								["mfee", 0]
 							]));
 
-							console.log(quizState.answersCounts);
-                        
 							quizState.answering = true;
 							broadcastMessage({
 								type: 'game:quiz:question',
@@ -181,8 +179,6 @@ export const socket: Socket = {
 										const correctCount = quizState.answersCounts[correctAnswer].get(major) ?? 0;
 										quizState.score.set(major, current + (total === 0 ? 0 : correctCount / total));
 									}
-
-                                    console.log('Quiz scores:', Array.from(quizState.score.entries()));
 
 									broadcastMessage({
 										type: 'game:quiz:correct',
@@ -211,7 +207,6 @@ export const socket: Socket = {
 				if (!currentGame || currentGame !== 'quiz') return;
 				if (!quizState.answering) return;
 				const answer = parsed.content;
-                console.log('Received answer:', answer, 'from user:', socketUser.uid, 'major:', socketUser.major);
 				const answerCounts = quizState.answersCounts[answer];
 				if (!answerCounts) return;
 				answerCounts.set(socketUser.major, (answerCounts.get(socketUser.major) ?? 0) + 1);

@@ -131,7 +131,6 @@
 		ws = new WebSocket('/api/ws');
 
 		ws.onmessage = (event) => {
-			console.log('WS message received:', JSON.parse(event.data));
 			const parsed = SocketMessageSchema(JSON.parse(event.data));
 
 			if (parsed instanceof ArkErrors) {
