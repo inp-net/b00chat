@@ -10,3 +10,4 @@ export const QuizQuestion = type({
 	answers: 'string[]',
 	correctAnswerIndex: 'number'
 });
+export const QuizQuestionData = QuizQuestion.omit('correctAnswerIndex');

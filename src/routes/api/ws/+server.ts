@@ -1,7 +1,7 @@
 import { Users, Messages } from '$lib/server/database';
 import { broadcastMessage, sendMessage, socketSessions } from '$lib/server/socketSessions';
 import type { ClientMessage, SocketMessageSchema } from '$lib/socket';
-import type { Game, QuizQuestion } from '$lib/types';
+import type { Game, QuizQuestion, QuizQuestionData } from '$lib/types';
 import type { Major } from '$lib/users';
 import type { Socket } from '@sveltejs/kit';
 
@@ -18,13 +18,19 @@ const clickerState: { interval: NodeJS.Timeout | null; score: Record<Major, numb
 const quizState: {
 	interval: NodeJS.Timeout | null;
 	answering: boolean;
-	question: typeof QuizQuestion.inferIn | null;
-	answersCounts: Array<number>;
+	question: typeof QuizQuestionData.inferIn | null;
+	answersCounts: Array<Record<Major, number>>;
+	score: Record<Major, number>;
 } = {
 	interval: null,
 	answering: false,
 	question: null,
-	answersCounts: []
+	answersCounts: [],
+	score: {
+		sdn: 0,
+		eeea: 0,
+		mfee: 0
+	}
 };
 
 function getNextQuizQuestion(): typeof QuizQuestion.inferIn {
@@ -142,21 +148,24 @@ export const socket: Socket = {
 					case 'quiz':
 						// every 15 seconds send a new question to all players
 						quizState.interval = setInterval(() => {
-							quizState.question = getNextQuizQuestion();
+							let question = getNextQuizQuestion();
+							quizState.question = question;
 							quizState.answersCounts = Array(quizState.question.answers.length).fill(0);
 							quizState.answering = true;
 							broadcastMessage({
 								type: 'game:quiz:question',
 								content: quizState.question
 							});
+							console.log('New quiz question sent:', question);
 							// after 10 seconds, send the correct answer to all players
 							setTimeout(() => {
 								if (quizState.question) {
 									quizState.answering = false;
 									broadcastMessage({
 										type: 'game:quiz:correct',
-										content: quizState.question.correctAnswerIndex
+										content: question.correctAnswerIndex
 									});
+									console.log('Correct answer sent:', question.correctAnswerIndex);
 								}
 							}, 10000);
 						}, 15000);
@@ -177,7 +186,8 @@ export const socket: Socket = {
 				if (!currentGame || currentGame !== 'quiz') return;
 				if (!quizState.answering) return;
 				const answer = parsed.content;
-				quizState.answersCounts[answer] += 1;
+				quizState.answersCounts[answer][socketUser.major]+= 1;
+				console.log(quizState.answersCounts);
 				break;
 			}
 
@@ -202,6 +212,9 @@ export const socket: Socket = {
 						break;
 
 					case 'quiz':
+						if (quizState.interval) clearInterval(quizState.interval);
+						quizState.interval = null;
+						quizState.answering = false;
 						quizState.question = null;
 						quizState.answersCounts = [];
 						break;

@@ -1,6 +1,6 @@
 import { type } from 'arktype';
 import { MajorSchema } from './users';
-import { Game, ID, QuizQuestion } from './types';
+import { Game, ID, QuizQuestion, QuizQuestionData } from './types';
 
 export const ClientCreateMessageSchema = type({
 	content: 'string.trim',
@@ -29,7 +29,7 @@ export const SocketMessageSchema = type.or(
 	{ type: '"game:end"', content: Game },
 	{ type: '"game:clicker:click"', content: 'null' },
 	{ type: '"game:clicker:score"', content: 'Record<string, number>' },
-	{ type: '"game:quiz:question"', content: QuizQuestion },
+	{ type: '"game:quiz:question"', content: QuizQuestionData },
 	{ type: '"game:quiz:answer"', content: 'number' },
 	{ type: '"game:quiz:correct"', content: 'number' }
 );

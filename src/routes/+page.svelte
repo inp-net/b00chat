@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import { onMount, onDestroy, tick } from 'svelte';
-	import { Game } from '$lib/types';
+	import { Game, QuizQuestionData } from '$lib/types';
 
 	import { Button, Frame } from 'azucar-ui';
 	import ChatInput from '$lib/components/ChatInput.svelte';
@@ -16,6 +16,7 @@
 	import { ArkErrors } from 'arktype';
 	import { toast } from 'svelte-sonner';
 	import { goto } from '$app/navigation';
+	import Quiz from '$lib/components/minigames/Quiz.svelte';
 
 	const { data } = $props();
 	const isOverlay = $derived(page.url.searchParams.has('overlay'));
@@ -36,7 +37,9 @@
 	let minigame = $state<typeof Game.inferIn | null>(null);
 	let scores = $state<Record<Major, number>>({ eeea: 0, mfee: 0, sdn: 0 });
 	let winner = $state<Major | null>(null);
-
+	let question = $state<typeof QuizQuestionData.inferIn | undefined>(undefined);
+	let answer = $state<number | undefined>(undefined);
+ 
 	let ws: WebSocket | null = $state(null);
 	let chatInput: string = $state('');
 	let messagesContainer: HTMLDivElement;
@@ -91,6 +94,17 @@
 		ws.send(
 			JSON.stringify({
 				type: 'game:clicker:click'
+			})
+		);
+	}
+
+	function sendAnswer(i: number) {
+		if (!data.user || !ws || ws.readyState !== WebSocket.OPEN) return;
+
+		ws.send(
+			JSON.stringify({
+				type: 'game:quiz:answer',
+				content: i
 			})
 		);
 	}
@@ -169,6 +183,13 @@
 				case 'game:clicker:score':
 					scores = parsed.content as Record<Major, number>;
 					break;
+				case 'game:quiz:question':
+					question = parsed.content as typeof QuizQuestionData.inferIn;
+					answer = undefined;
+					break;
+				case "game:quiz:correct":
+					answer = parsed.content as number;
+					break;
 			}
 		};
 	});
@@ -185,6 +206,9 @@
 				<Frame border shadow transparent>
 					{#if minigame === 'clicker'}
 						<Clicker major={data.user?.major} {scores} {winner} onClick={sendClick} {isOverlay} />
+					{/if}
+					{#if minigame === 'quiz'}
+						<Quiz {question} answerIndex={answer} {scores} {winner} onClick={sendAnswer} {isOverlay} />
 					{/if}
 				</Frame>
 			</div>

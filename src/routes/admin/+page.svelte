@@ -38,9 +38,12 @@
 <Flex direction="column" align="center" justify="center">
 	<h2>Admin</h2>
 
+	<!--TODO : Afficher jeu en cours -->
+
 	<Flex direction="column" align="center" justify="center">
 		<Button onclick={() => startGame('clicker')}>Lancer Clicker</Button>
-		<Button disabled>Lancer Quiz</Button>
+		<Button onclick={() => startGame('quiz')}>Lancer Quiz</Button>
 		<Button onclick={() => endGame('clicker')}>Arrêter Clicker</Button>
+		<Button onclick={() => endGame('quiz')}>Arrêter Quiz</Button>
 	</Flex>
 </Flex>
